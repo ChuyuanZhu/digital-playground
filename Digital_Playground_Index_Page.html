@@ -1,0 +1,990 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-hover: 0 10px 20px -3px rgb(0 0 0 / 0.08);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    /* Top Nav */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 1.5rem;
+    }
+
+    .wishlist-btn-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+
+    .wishlist-btn-trigger:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* Header */
+    header {
+      padding: 2rem 0 1.75rem;
+      text-align: center;
+    }
+
+    .logo-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.4rem;
+      color: #0f172a;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    /* Controls Section */
+    .controls-section {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .controls-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: var(--card-bg);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.5rem 0.85rem;
+      border: 1px solid transparent;
+      background-color: var(--bg);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      background-color: #fff;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .control-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .custom-select {
+      padding: 0.45rem 1.75rem 0.45rem 0.65rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* Tag Pills Bar */
+    .tags-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .tag-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tag-pill:hover {
+      border-color: var(--border-hover);
+      color: var(--text-main);
+    }
+
+    .tag-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 640px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 980px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Tile Card */
+    .tile-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tile-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .tile-cover {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      overflow: hidden;
+      background-color: #f1f5f9;
+    }
+
+    .tile-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .tile-card:hover .tile-cover img {
+      transform: scale(1.04);
+    }
+
+    .tile-badges {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 80%;
+    }
+
+    .tile-tag-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tile-content {
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .tile-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .tile-desc {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .tile-actions {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.85rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.45rem 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: white;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 4rem;
+    }
+
+    .page-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .page-btn.active {
+      background-color: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      padding: 2rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* Wishlist Drawer */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-bg);
+      z-index: 101;
+      box-shadow: -8px 0 24px rgba(0, 0, 0, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer-overlay.open .drawer {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0.2rem;
+      line-height: 1;
+    }
+
+    .wishlist-form-wrap {
+      padding: 1.25rem 1.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wishlist-textarea {
+      width: 100%;
+      height: 72px;
+      resize: none;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .wishlist-textarea:focus {
+      border-color: var(--accent);
+      background-color: #fff;
+    }
+
+    .input-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .char-counter {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+    }
+
+    .char-counter.limit-exceeded {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .btn-submit-wish {
+      padding: 0.4rem 0.85rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-submit-wish:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .wishlist-stream {
+      padding: 1.25rem 1.5rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .wish-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem;
+      border-radius: 8px;
+    }
+
+    .wish-text {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .wish-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 3rem 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar with Wishlist button -->
+  <div class="container top-bar">
+    <button class="wishlist-btn-trigger" id="openWishlistBtn">
+      <span>✨ Wishlist</span>
+    </button>
+  </div>
+
+  <header class="container">
+    <h1 class="logo-title">Digital Playground</h1>
+    <p class="subtitle">A curated collection of lightweight web toys, casual games, and time-killers.</p>
+  </header>
+
+  <section class="container controls-section">
+    <div class="controls-wrapper">
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Search playground titles, tags, or descriptions..."
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="perPageSelect" class="control-label">Per page:</label>
+        <select id="perPageSelect" class="custom-select">
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sortSelect" class="control-label">Sort:</label>
+        <select id="sortSelect" class="custom-select">
+          <option value="date-desc">Newest Added</option>
+          <option value="date-asc">Oldest Added</option>
+          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+          <!-- 新增 Tag 排序 -->
+          <option value="tag-asc">Tag (A-Z)</option>
+          <option value="tag-desc">Tag (Z-A)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 动态 Tag 过滤药丸栏 -->
+    <div class="tags-bar" id="tagsBar"></div>
+  </section>
+
+  <main class="container">
+    <div id="cardGrid" class="grid"></div>
+    <div id="pagination" class="pagination"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digital Playground. Open-source on GitHub.</p>
+    </div>
+  </footer>
+
+  <!-- Wishlist Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay">
+    <div class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">Community Wishlist</h2>
+        <button class="close-btn" id="closeWishlistBtn">&times;</button>
+      </div>
+
+      <div class="wishlist-form-wrap">
+        <textarea 
+          id="wishInput" 
+          class="wishlist-textarea" 
+          placeholder="What app or mini-game should be built next? Write your wish here..."
+        ></textarea>
+        <div class="input-meta">
+          <span class="char-counter" id="counterText">0/20 words &middot; 0/150 chars</span>
+          <button id="submitWishBtn" class="btn-submit-wish" disabled>Post</button>
+        </div>
+      </div>
+
+      <div class="wishlist-stream" id="wishlistStream"></div>
+    </div>
+  </div>
+
+  <script>
+    // 支持为每个应用配置多个 tag
+    const toyTemplates = [
+      { 
+        name: "Retro Pong", 
+        tags: ["Game", "Arcade", "Classic"],
+        image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
+        desc: "Classic arcade table tennis with smooth paddle physics and responsive AI." 
+      },
+      { 
+        name: "Matrix Rain Generator", 
+        tags: ["Visual", "Canvas", "Sci-Fi"],
+        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80",
+        desc: "Customizable falling digital matrix streams with speed and glow controls." 
+      },
+      { 
+        name: "Zen Garden Stones", 
+        tags: ["Relax", "Audio", "Ambient"],
+        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=600&q=80",
+        desc: "Stack smooth pebbles and rake sand accompanied by ambient soundscapes." 
+      },
+      { 
+        name: "Pixel Drawing Pad", 
+        tags: ["Creative", "Art", "Tool"],
+        image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80",
+        desc: "16x16 and 32x32 retro pixel art canvas with PNG sprite sheet export." 
+      },
+      { 
+        name: "Mini Web Synth", 
+        tags: ["Audio", "Music", "Synth"],
+        image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=600&q=80",
+        desc: "8-bit synthesizer using Web Audio API. Play notes with your keyboard keys." 
+      },
+      { 
+        name: "Falling Sand Simulator", 
+        tags: ["Physics", "Simulation", "Sandbox"],
+        image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80",
+        desc: "Granular particle sandbox. Watch real-time gravity and elemental mixtures." 
+      },
+      { 
+        name: "3D Coin & Dice Roller", 
+        tags: ["Tool", "Utility", "3D"],
+        image: "https://images.unsplash.com/photo-1522069213448-443a614da9b6?auto=format&fit=crop&w=600&q=80",
+        desc: "Physical probability simulator for quick decisions with realistic audio feedback." 
+      },
+      { 
+        name: "Game of Life Lab", 
+        tags: ["Simulation", "Math", "Algorithms"],
+        image: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=600&q=80",
+        desc: "Conway's cellular universe with adjustable tick speed and pattern presets." 
+      }
+    ];
+
+    // 生成演示数据
+    const appsData = [];
+    for (let i = 1; i <= 52; i++) {
+      const template = toyTemplates[(i - 1) % toyTemplates.length];
+      const month = String((i % 12) + 1).padStart(2, '0');
+      const day = String((i % 28) + 1).padStart(2, '0');
+      appsData.push({
+        id: i,
+        name: i <= toyTemplates.length ? template.name : `${template.name} #${i}`,
+        tags: [...template.tags],
+        image: template.image,
+        description: template.desc,
+        date: `2024-${month}-${day}`,
+        playUrl: "#",
+        downloadUrl: "#"
+      });
+    }
+
+    // 状态管理
+    let selectedTag = "All";
+    let itemsPerPage = 25;
+    let currentPage = 1;
+    let filteredData = [...appsData];
+
+    const cardGrid = document.getElementById("cardGrid");
+    const pagination = document.getElementById("pagination");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const perPageSelect = document.getElementById("perPageSelect");
+    const tagsBar = document.getElementById("tagsBar");
+
+    // 动态提取并生成所有可用标签药丸
+    function setupTagPills() {
+      const allTagsSet = new Set();
+      appsData.forEach(app => app.tags.forEach(t => allTagsSet.add(t)));
+      const sortedTags = ["All", ...Array.from(allTagsSet).sort()];
+
+      tagsBar.innerHTML = "";
+      sortedTags.forEach(tag => {
+        const pill = document.createElement("button");
+        pill.className = `tag-pill ${tag === selectedTag ? 'active' : ''}`;
+        pill.innerText = tag;
+        pill.onclick = () => {
+          selectedTag = tag;
+          document.querySelectorAll(".tag-pill").forEach(el => el.classList.remove("active"));
+          pill.classList.add("active");
+          updateApps();
+        };
+        tagsBar.appendChild(pill);
+      });
+    }
+
+    function updateApps() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const sortType = sortSelect.value;
+      itemsPerPage = parseInt(perPageSelect.value, 10);
+
+      // 1. 关键词搜索 + 标签筛选
+      filteredData = appsData.filter(app => {
+        const matchesKeyword = 
+          app.name.toLowerCase().includes(keyword) ||
+          app.description.toLowerCase().includes(keyword) ||
+          app.tags.some(t => t.toLowerCase().includes(keyword));
+
+        const matchesTag = (selectedTag === "All") || app.tags.includes(selectedTag);
+
+        return matchesKeyword && matchesTag;
+      });
+
+      // 2. 排序（支持 Name、Date 以及 Tag）
+      filteredData.sort((a, b) => {
+        const mainTagA = a.tags[0] || "";
+        const mainTagB = b.tags[0] || "";
+
+        if (sortType === "name-asc") return a.name.localeCompare(b.name);
+        if (sortType === "name-desc") return b.name.localeCompare(a.name);
+        if (sortType === "date-asc") return new Date(a.date) - new Date(b.date);
+        if (sortType === "date-desc") return new Date(b.date) - new Date(a.date);
+        // 按主要 Tag 首字母排序
+        if (sortType === "tag-asc") return mainTagA.localeCompare(mainTagB);
+        if (sortType === "tag-desc") return mainTagB.localeCompare(mainTagA);
+        return 0;
+      });
+
+      currentPage = 1;
+      render();
+    }
+
+    function render() {
+      cardGrid.innerHTML = "";
+      const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
+
+      if (filteredData.length === 0) {
+        cardGrid.innerHTML = `<div class="empty-state">No playgrounds found matching your criteria.</div>`;
+        pagination.innerHTML = "";
+        return;
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+      currentItems.forEach(item => {
+        const tile = document.createElement("article");
+        tile.className = "tile-card";
+
+        // 标签胶囊生成 (最多展示前2个避免卡片过于拥挤)
+        const tagsHtml = item.tags.slice(0, 2).map(tag => `<span class="tile-tag-badge">${tag}</span>`).join("");
+
+        tile.innerHTML = `
+          <div class="tile-cover">
+            <img src="${item.image}" alt="${item.name}" loading="lazy" />
+            <div class="tile-badges">${tagsHtml}</div>
+          </div>
+          <div class="tile-content">
+            <div>
+              <h3 class="tile-title" title="${item.name}">${item.name}</h3>
+              <p class="tile-desc">${item.description}</p>
+            </div>
+            <div class="tile-actions">
+              <a href="${item.playUrl}" class="btn btn-primary" target="_blank">Play</a>
+              <a href="${item.downloadUrl}" class="btn btn-secondary" download>Download</a>
+            </div>
+          </div>
+        `;
+        cardGrid.appendChild(tile);
+      });
+
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      pagination.innerHTML = "";
+      if (totalPages <= 1) return;
+
+      const prevBtn = document.createElement("button");
+      prevBtn.className = "page-btn";
+      prevBtn.innerHTML = "&larr;";
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          render();
+          window.scrollTo({ top: 160, behavior: 'smooth' });
+        }
+      };
+      pagination.appendChild(prevBtn);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        pageBtn.innerText = i;
+        pageBtn.onclick = () => {
+          currentPage = i;
+          render();
+          window.scrollTo({ top: 160, behavior: 'smooth' });
+        };
+        pagination.appendChild(pageBtn);
+      }
+
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "page-btn";
+      nextBtn.innerHTML = "&rarr;";
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          render();
+          window.scrollTo({ top: 160, behavior: 'smooth' });
+        }
+      };
+      pagination.appendChild(nextBtn);
+    }
+
+    // 绑定筛选事件
+    searchInput.addEventListener("input", updateApps);
+    sortSelect.addEventListener("change", updateApps);
+    perPageSelect.addEventListener("change", updateApps);
+
+    // ================= Wishlist Drawer 逻辑 =================
+    const defaultWishes = [
+      { text: "Can we have a 2-player local Snake battle game?", time: "2 hours ago" },
+      { text: "A relaxing ambient rain sound generator with lo-fi beats.", time: "1 day ago" },
+      { text: "Typing speed test tool with mechanical keyboard sounds!", time: "3 days ago" }
+    ];
+
+    let wishes = JSON.parse(localStorage.getItem("dp_wishes")) || defaultWishes;
+
+    const drawerOverlay = document.getElementById("drawerOverlay");
+    const openWishlistBtn = document.getElementById("openWishlistBtn");
+    const closeWishlistBtn = document.getElementById("closeWishlistBtn");
+    const wishInput = document.getElementById("wishInput");
+    const counterText = document.getElementById("counterText");
+    const submitWishBtn = document.getElementById("submitWishBtn");
+    const wishlistStream = document.getElementById("wishlistStream");
+
+    function renderWishes() {
+      wishlistStream.innerHTML = "";
+      wishes.forEach(wish => {
+        const item = document.createElement("div");
+        item.className = "wish-card";
+        item.innerHTML = `
+          <p class="wish-text">${escapeHtml(wish.text)}</p>
+          <span class="wish-time">${wish.time}</span>
+        `;
+        wishlistStream.appendChild(item);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function countWords(str) {
+      const matches = str.trim().match(/\b\S+\b/g);
+      return matches ? matches.length : 0;
+    }
+
+    wishInput.addEventListener("input", () => {
+      const value = wishInput.value;
+      const charCount = value.length;
+      const wordCount = countWords(value);
+
+      counterText.innerText = `${wordCount}/20 words · ${charCount}/150 chars`;
+
+      const isValid = (wordCount > 0 && wordCount <= 20) && (charCount <= 150);
+      const isExceeded = wordCount > 20 || charCount > 150;
+
+      if (isExceeded) {
+        counterText.classList.add("limit-exceeded");
+      } else {
+        counterText.classList.remove("limit-exceeded");
+      }
+
+      submitWishBtn.disabled = !isValid;
+    });
+
+    submitWishBtn.addEventListener("click", () => {
+      const text = wishInput.value.trim();
+      if (!text) return;
+
+      const newWish = { text: text, time: "Just now" };
+      wishes.unshift(newWish);
+      localStorage.setItem("dp_wishes", JSON.stringify(wishes));
+
+      wishInput.value = "";
+      counterText.innerText = "0/20 words · 0/150 chars";
+      submitWishBtn.disabled = true;
+
+      renderWishes();
+    });
+
+    openWishlistBtn.addEventListener("click", () => {
+      drawerOverlay.classList.add("open");
+      renderWishes();
+    });
+
+    closeWishlistBtn.addEventListener("click", () => {
+      drawerOverlay.classList.remove("open");
+    });
+
+    drawerOverlay.addEventListener("click", (e) => {
+      if (e.target === drawerOverlay) drawerOverlay.classList.remove("open");
+    });
+
+    // 运行初始化
+    setupTagPills();
+    updateApps();
+  </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
