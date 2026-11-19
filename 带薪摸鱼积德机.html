@@ -1,0 +1,297 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博打工摸鱼机</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #1e1e24;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #f1c40f;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* 木鱼按钮 */
+        .fish-btn {
+            width: 160px;
+            height: 160px;
+            background: #2b2b36;
+            border: 4px solid #f1c40f;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(241, 196, 15, 0.2);
+            transition: transform 0.05s ease, background 0.1s ease;
+            position: relative;
+        }
+
+        .fish-btn:active {
+            transform: scale(0.92);
+            background: #383846;
+        }
+
+        .stats {
+            margin-top: 35px;
+            font-size: 1rem;
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* 飘浮文字动效 */
+        .float-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #f1c40f;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -80px) scale(1.2);
+            }
+        }
+
+        /* 老板键提示 & 按钮 */
+        .boss-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #333;
+            color: #aaa;
+            border: 1px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* 假装在工作的伪装层 (Excel风格) */
+        #camouflage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            color: #000;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            z-index: 9999;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #d4d4d4;
+            padding: 4px 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f3f3f3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>⚡ 赛博摸鱼功德机 ⚡</h2>
+        <div class="subtitle">每敲一下，带薪摸鱼的快乐就多一分</div>
+
+        <div class="fish-btn" id="moyu-btn">🐟</div>
+
+        <div class="stats">
+            今日敲击：<span id="click-count" class="highlight">0</span> 次<br>
+            已赚老板：<span id="money-saved" class="highlight">0.00</span> 元<br>
+            灵魂离体进度：<span id="soul-percent" class="highlight">0%</span>
+        </div>
+    </div>
+
+    <button class="boss-btn" id="boss-trigger" title="快捷键：空格键">🚨 老板来了 (空格)</button>
+
+    <!-- 伪装工作界面 (假的 Excel 表格) -->
+    <div id="camouflage">
+        <div style="background: #107c41; color: white; padding: 5px; margin-bottom: 5px; font-weight: bold;">
+            Microsoft Excel - Q4_企业级核心财务损益平衡与资产核算表.xlsx
+        </div>
+        <table>
+            <thead>
+                <tr><th>序号</th><th>指标科目</th><th>Q1 预算 (RMB)</th><th>Q2 实际发生</th><th>方差分析</th><th>完成进度</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>核心业务链路架构优化成本</td><td>¥ 1,240,500.00</td><td>¥ 1,180,200.00</td><td>-4.86%</td><td>95.2%</td></tr>
+                <tr><td>2</td><td>多维矩阵用户留存赋能研发</td><td>¥ 850,000.00</td><td>¥ 920,400.00</td><td>+8.28%</td><td>100.0%</td></tr>
+                <tr><td>3</td><td>跨部门协同赋能沉淀基金</td><td>¥ 430,000.00</td><td>¥ 410,000.00</td><td>-4.65%</td><td>88.4%</td></tr>
+                <tr><td>4</td><td>生态闭环引流商业化ROI测算</td><td>¥ 2,100,000.00</td><td>¥ 2,050,000.00</td><td>-2.38%</td><td>91.0%</td></tr>
+                <tr><td>5</td><td>底层逻辑颗粒度打磨运维费</td><td>¥ 320,000.00</td><td>¥ 315,000.00</td><td>-1.56%</td><td>97.5%</td></tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 15px; color: #666;">（提示：再次按下【空格键】返回摸鱼界面）</p>
+    </div>
+
+    <script>
+        let clicks = 0;
+        const btn = document.getElementById('moyu-btn');
+        const countText = document.getElementById('click-count');
+        const moneyText = document.getElementById('money-saved');
+        const soulText = document.getElementById('soul-percent');
+        const camouflage = document.getElementById('camouflage');
+        const bossTrigger = document.getElementById('boss-trigger');
+
+        // 随机飘出的沙雕文案
+        const floatingWords = [
+            "功德 +1", "带薪拉屎 +5分钟", "白嫖薪水 +0.1元",
+            "老板血压 +3", "头发保留率 +0.01%", "画大饼抗性 +10",
+            "甩锅熟练度 +1", "离职勇气 +0.05%", "精神离职 +1s",
+            "摸鱼不被抓率 +5%", "假装忙碌技能 +1"
+        ];
+
+        // Web Audio API：无任何外部音频，纯代码合成木鱼声音
+        let audioCtx = null;
+        function playWoodSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // 产生短促的木质敲击音高
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(550, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.07);
+
+                gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.07);
+            } catch(e) {}
+        }
+
+        // 敲木鱼交互
+        function hitFish(e) {
+            clicks++;
+            playWoodSound();
+
+            // 更新数据面板
+            countText.innerText = clicks;
+            moneyText.innerText = (clicks * 0.08).toFixed(2);
+            soulText.innerText = Math.min(100, Math.floor(clicks * 1.5)) + "%";
+
+            // 生成飘字
+            const word = floatingWords[Math.floor(Math.random() * floatingWords.length)];
+            const span = document.createElement('span');
+            span.className = 'float-text';
+            span.innerText = word;
+
+            // 定位在鼠标点击处或按钮上方
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX || (rect.left + rect.width / 2);
+            const y = e.clientY || rect.top;
+
+            span.style.left = `${x}px`;
+            span.style.top = `${y}px`;
+            document.body.appendChild(span);
+
+            // 动画结束后销毁文字节点
+            setTimeout(() => span.remove(), 800);
+        }
+
+        btn.addEventListener('click', hitFish);
+
+        // 老板键逻辑
+        function toggleBossMode() {
+            const isHidden = camouflage.style.display === 'block';
+            camouflage.style.display = isHidden ? 'none' : 'block';
+        }
+
+        bossTrigger.addEventListener('click', toggleBossMode);
+
+        // 监听空格键：快速触发老板键
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // 防止页面滚屏
+                toggleBossMode();
+            }
+        });
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

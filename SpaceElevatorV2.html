@@ -1,0 +1,932 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太空电梯 (Space Elevator)</title>
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --accent: #3a7bd5;
+            --danger: #ff4757;
+            --bg-dark: #0a0e17;
+            --panel-bg: rgba(20, 30, 48, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 全局视图层容器 */
+        .view-layer {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+
+        /* 1. 主页菜单视图 */
+        #homeView {
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            z-index: 10;
+        }
+
+        .menu-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 16px;
+            width: 420px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .game-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .game-subtitle {
+            font-size: 0.9rem;
+            color: #8fa0b5;
+            margin-top: -12px;
+            margin-bottom: 10px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .menu-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+        }
+
+        /* 2. 规则 & 存档查看页面视图 */
+        .sub-page {
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            z-index: 15;
+            display: none;
+        }
+
+        .page-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 14px;
+            width: 520px;
+            max-height: 85vh;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .page-header {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .page-body {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 6px;
+        }
+
+        /* 规则文字排版 */
+        .rule-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #d1d8e0;
+        }
+
+        .rule-section h4 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-top: 6px;
+        }
+
+        /* 存档记录列表排版 */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .record-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            color: #8fa0b5;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+
+        .record-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .record-player {
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .record-height {
+            color: #ffd166;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 1.15rem;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 3. 游戏运行舞台视图 */
+        #gameView {
+            display: none;
+            background: #000;
+            z-index: 5;
+        }
+
+        canvas {
+            display: block;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
+        }
+
+        .hud {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 16px;
+            backdrop-filter: blur(5px);
+            font-size: 0.95rem;
+        }
+
+        .hud-item strong {
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 1.15rem;
+        }
+
+        .controls-panel {
+            pointer-events: all;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        /* 模态弹窗 (启动前参数设置) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-card {
+            background: #151f30;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 12px;
+            width: 400px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-card h3 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: #8fa0b5;
+            font-weight: bold;
+        }
+
+        .modal-card input, .modal-card select {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .modal-card input:focus, .modal-card select:focus {
+            border-color: var(--primary);
+        }
+
+        .error-tip {
+            color: var(--danger);
+            font-size: 0.8rem;
+            min-height: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 1. 游戏主页视图 -->
+<div class="view-layer" id="homeView">
+    <div class="menu-card">
+        <div class="game-title">SPACE ELEVATOR</div>
+        <div class="game-subtitle">太空电梯：星际轨道攀登系统</div>
+        
+        <button class="menu-btn menu-btn-primary" onclick="openStartModal()">▶ 开始游戏</button>
+        <button class="menu-btn" onclick="showView('recordsView')">📊 查看航行记录</button>
+        <button class="menu-btn" onclick="showView('rulesView')">📜 阅读游戏规则</button>
+    </div>
+</div>
+
+<!-- 2. 阅读游戏规则视图 -->
+<div class="view-layer sub-page" id="rulesView">
+    <div class="page-card">
+        <div class="page-header">📜 游戏规则指南</div>
+        <div class="page-body">
+            <div class="rule-section">
+                <h4>1. 游戏操控</h4>
+                <p>玩家在游戏开始前可自由选择 <strong>2 ~ 8 根</strong> 发光竖直轨道。使用键盘 <code>←</code> 和 <code>→</code> 键（或 <code>A</code> / <code>D</code> 键）操控电梯轿厢在不同轨道之间迅速变轨躲避危险。</p>
+                
+                <h4>2. 上升与高度</h4>
+                <p>轿厢在垂直方向保持固定观测视角，背后的星空向下流动营造出高速攀升的视觉效果。随着航行时间的推进，电梯的攀登高度（米）会不断累积。</p>
+                
+                <h4>3. 陨石机制</h4>
+                <p>太空中会随机生成不同大小、不同速度的陨石。陨石一旦生成将保持匀速直线运动。如果陨石撞击到电梯轿厢，轿厢将立刻被炸毁并宣告游戏结束。</p>
+
+                <h4>4. 控制与记录</h4>
+                <p>游戏过程中支持随时【暂停】或主动【停止航行】。每次游戏结束，系统都会安全自动归档你的 ID、日期时间和最高攀登高度。</p>
+            </div>
+        </div>
+        <button class="btn-back" onclick="showView('homeView')">返回主页</button>
+    </div>
+</div>
+
+<!-- 3. 查看游戏记录视图 -->
+<div class="view-layer sub-page" id="recordsView">
+    <div class="page-card">
+        <div class="page-header">📊 历史航行记录</div>
+        <div class="page-body">
+            <div class="record-list" id="recordList">
+                <!-- 动态填充存档 -->
+            </div>
+        </div>
+        <button class="btn-back" onclick="showView('homeView')">返回主页</button>
+    </div>
+</div>
+
+<!-- 4. 游戏实际运行视口 -->
+<div class="view-layer" id="gameView">
+    <div class="hud">
+        <div class="hud-item">领航员: <strong id="hudPlayer">-</strong></div>
+        <div class="hud-item">轨道: <strong id="hudTrackCount">3 轨</strong></div>
+        <div class="hud-item">高度: <strong id="hudHeight">0 m</strong></div>
+        <div class="controls-panel">
+            <button class="btn" id="btnPause" onclick="togglePause()">暂停</button>
+            <button class="btn btn-danger" id="btnStop" onclick="manualStop()">停止航行</button>
+        </div>
+    </div>
+    <canvas id="gameCanvas" width="600" height="750"></canvas>
+</div>
+
+<!-- 参数设置弹窗 (点击开始游戏后触发) -->
+<div class="modal" id="loginModal">
+    <div class="modal-card">
+        <h3>🚀 太空电梯航行准备</h3>
+        
+        <div class="form-group">
+            <label>领航员 ID：</label>
+            <input type="text" id="playerIdInput" placeholder="请输入 2~12 位字符" maxlength="20" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>轨道数量选择 (2 ~ 8 轨)：</label>
+            <select id="trackCountInput">
+                <option value="2">2 轨 (极限狭窄)</option>
+                <option value="3" selected>3 轨 (经典标准)</option>
+                <option value="4">4 轨 (中等挑战)</option>
+                <option value="5">5 轨 (大型轨道)</option>
+                <option value="6">6 轨 (超宽阵列)</option>
+                <option value="7">7 轨 (高难多轨)</option>
+                <option value="8">8 轨 (太空矩阵)</option>
+            </select>
+        </div>
+
+        <div class="error-tip" id="errorTip"></div>
+        <div class="modal-actions">
+            <button class="btn" style="flex:1;" onclick="submitPlayerSettings()">正式发射</button>
+            <button class="btn-back" style="flex:1;" onclick="closeStartModal()">返回主页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. 安全持久化存储
+    // ==========================================
+    const MemoryStore = {};
+    const SafeStorage = {
+        getItem: function(key) {
+            try { return window.localStorage.getItem(key); }
+            catch (e) { return MemoryStore[key] || null; }
+        },
+        setItem: function(key, val) {
+            try { window.localStorage.setItem(key, val); }
+            catch (e) { MemoryStore[key] = String(val); }
+        }
+    };
+
+    // ==========================================
+    // 2. 页面视图切换管理
+    // ==========================================
+    function showView(viewId) {
+        document.getElementById('homeView').style.display = 'none';
+        document.getElementById('rulesView').style.display = 'none';
+        document.getElementById('recordsView').style.display = 'none';
+        document.getElementById('gameView').style.display = 'none';
+
+        const target = document.getElementById(viewId);
+        if (target) {
+            target.style.display = 'flex';
+        }
+
+        if (viewId === 'recordsView') {
+            renderRecords();
+        }
+    }
+
+    function openStartModal() {
+        document.getElementById('errorTip').textContent = "";
+        document.getElementById('loginModal').style.display = 'flex';
+        document.getElementById('playerIdInput').focus();
+    }
+
+    function closeStartModal() {
+        document.getElementById('loginModal').style.display = 'none';
+    }
+
+    // ==========================================
+    // 3. 游戏核心配置与变量
+    // ==========================================
+    const CONFIG = {
+        tracksCount: 3,
+        cabinWidth: 46,
+        cabinHeight: 64,
+        ascendRate: 1.5,
+        levels: [
+            { minHeight: 0, meteorFrequency: 0.02, speedMultiplier: 1.0 },
+            { minHeight: 1500, meteorFrequency: 0.035, speedMultiplier: 1.3 },
+            { minHeight: 5000, meteorFrequency: 0.05, speedMultiplier: 1.7 }
+        ]
+    };
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentPlayerId = "";
+    let isPlaying = false;
+    let isPaused = false;
+    let altitude = 0;
+    let animationId = null;
+
+    let trackXCoords = [];
+    let cabin = { trackIndex: 1, x: 0, y: 0, targetX: 0 };
+    let stars = [];
+    let meteors = [];
+    let particles = [];
+    let bullets = [];
+
+    // ==========================================
+    // 4. 初始化与启动流程
+    // ==========================================
+    function init() {
+        initStars();
+        showView('homeView');
+    }
+
+    function calculateTrackPositions() {
+        trackXCoords = [];
+        const padding = 70;
+        const availableWidth = canvas.width - padding * 2;
+        const spacing = availableWidth / (CONFIG.tracksCount - 1);
+
+        for (let i = 0; i < CONFIG.tracksCount; i++) {
+            trackXCoords.push(padding + i * spacing);
+        }
+
+        // 自适应轿厢宽度
+        if (CONFIG.tracksCount <= 3) CONFIG.cabinWidth = 46;
+        else if (CONFIG.tracksCount <= 5) CONFIG.cabinWidth = 38;
+        else CONFIG.cabinWidth = 32;
+    }
+
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < 80; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 0.5,
+                speed: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    function submitPlayerSettings() {
+        const idInput = document.getElementById('playerIdInput');
+        const trackInput = document.getElementById('trackCountInput');
+        const err = document.getElementById('errorTip');
+        const val = idInput.value.trim();
+
+        if (val.length < 2) {
+            err.textContent = "⚠️ ID 过短，至少需要 2 个字符！";
+            return;
+        }
+        if (val.length > 12) {
+            err.textContent = "⚠️ ID 过长，请控制在 2~12 个字符以内！";
+            return;
+        }
+
+        let selectedTracks = parseInt(trackInput.value, 10);
+        if (isNaN(selectedTracks) || selectedTracks < 2) selectedTracks = 2;
+        if (selectedTracks > 8) selectedTracks = 8;
+
+        CONFIG.tracksCount = selectedTracks;
+        calculateTrackPositions();
+
+        currentPlayerId = val;
+        document.getElementById('hudPlayer').textContent = currentPlayerId;
+        document.getElementById('hudTrackCount').textContent = `${CONFIG.tracksCount} 轨`;
+        closeStartModal();
+
+        showView('gameView');
+        startGame();
+    }
+
+    function startGame() {
+        altitude = 0;
+        meteors = [];
+        particles = [];
+        bullets = [];
+        isPaused = false;
+        isPlaying = true;
+
+        cabin.trackIndex = Math.floor(Math.random() * CONFIG.tracksCount);
+        cabin.x = trackXCoords[cabin.trackIndex];
+        cabin.targetX = cabin.x;
+        cabin.y = canvas.height - 130;
+
+        document.getElementById('btnPause').textContent = "暂停";
+        loop();
+    }
+
+    // ==========================================
+    // 5. 游戏主循环逻辑
+    // ==========================================
+    function loop() {
+        if (!isPlaying) return;
+
+        if (!isPaused) {
+            update();
+        }
+        render();
+
+        animationId = requestAnimationFrame(loop);
+    }
+
+    function togglePause() {
+        if (!isPlaying) return;
+        isPaused = !isPaused;
+        document.getElementById('btnPause').textContent = isPaused ? "继续" : "暂停";
+    }
+
+    function manualStop() {
+        if (!isPlaying) return;
+        gameOver("领航员主动停止航行");
+    }
+
+    function getCurrentDifficulty() {
+        for (let i = CONFIG.levels.length - 1; i >= 0; i--) {
+            if (altitude >= CONFIG.levels[i].minHeight) {
+                return CONFIG.levels[i];
+            }
+        }
+        return CONFIG.levels[0];
+    }
+
+    function update() {
+        altitude += CONFIG.ascendRate;
+        document.getElementById('hudHeight').textContent = `${Math.floor(altitude)} m`;
+
+        cabin.x += (cabin.targetX - cabin.x) * 0.25;
+
+        stars.forEach(s => {
+            s.y += s.speed;
+            if (s.y > canvas.height) {
+                s.y = 0;
+                s.x = Math.random() * canvas.width;
+            }
+        });
+
+        const diff = getCurrentDifficulty();
+        if (Math.random() < diff.meteorFrequency) {
+            spawnMeteor(diff.speedMultiplier);
+        }
+
+        for (let i = meteors.length - 1; i >= 0; i--) {
+            const m = meteors[i];
+            m.x += m.vx;
+            m.y += m.vy;
+            m.rotation += m.vRot;
+
+            if (checkCollision(cabin, m)) {
+                triggerExplosion(cabin.x, cabin.y);
+                gameOver("遭遇陨石撞击！");
+                return;
+            }
+
+            if (m.y > canvas.height + 60 || m.x < -60 || m.x > canvas.width + 60) {
+                meteors.splice(i, 1);
+            }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= p.decay;
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+            }
+        }
+    }
+
+    function spawnMeteor(speedMult) {
+        const radius = Math.random() * 16 + 12;
+        const spawnFromTop = Math.random() > 0.3;
+        let startX, startY, vx, vy;
+
+        const baseSpeed = (Math.random() * 2 + 2) * speedMult;
+
+        if (spawnFromTop) {
+            startX = Math.random() * canvas.width;
+            startY = -radius;
+            vx = (Math.random() - 0.5) * 2;
+            vy = baseSpeed;
+        } else {
+            const fromLeft = Math.random() > 0.5;
+            startX = fromLeft ? -radius : canvas.width + radius;
+            startY = Math.random() * (canvas.height * 0.5);
+            vx = fromLeft ? Math.random() * 2 + 1 : -(Math.random() * 2 + 1);
+            vy = baseSpeed;
+        }
+
+        meteors.push({
+            x: startX,
+            y: startY,
+            radius: radius,
+            vx: vx,
+            vy: vy,
+            rotation: 0,
+            vRot: (Math.random() - 0.5) * 0.05,
+            color: Math.random() > 0.5 ? '#b08968' : '#7f7f7f'
+        });
+    }
+
+    function checkCollision(cab, m) {
+        const left = cab.x - CONFIG.cabinWidth / 2;
+        const right = cab.x + CONFIG.cabinWidth / 2;
+        const top = cab.y - CONFIG.cabinHeight / 2;
+        const bottom = cab.y + CONFIG.cabinHeight / 2;
+
+        const closestX = Math.max(left, Math.min(m.x, right));
+        const closestY = Math.max(top, Math.min(m.y, bottom));
+
+        const distanceX = m.x - closestX;
+        const distanceY = m.y - closestY;
+
+        return (distanceX * distanceX + distanceY * distanceY) < (m.radius * m.radius);
+    }
+
+    function triggerExplosion(x, y) {
+        for (let i = 0; i < 60; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 6 + 2;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: ['#ff4757', '#ffa502', '#2ed573', '#ffffff'][Math.floor(Math.random() * 4)],
+                radius: Math.random() * 4 + 2,
+                life: 1.0,
+                decay: Math.random() * 0.03 + 0.015
+            });
+        }
+    }
+
+    // ==========================================
+    // 6. 渲染绘制
+    // ==========================================
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        trackXCoords.forEach(tx => {
+            ctx.save();
+            ctx.strokeStyle = "rgba(0, 210, 255, 0.25)";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(tx, 0);
+            ctx.lineTo(tx, canvas.height);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        if (isPlaying) {
+            ctx.save();
+            ctx.translate(cabin.x, cabin.y);
+
+            ctx.shadowColor = "#00d2ff";
+            ctx.shadowBlur = 15;
+
+            ctx.fillStyle = "#1e293b";
+            ctx.strokeStyle = "#00d2ff";
+            ctx.lineWidth = 2;
+            ctx.fillRect(-CONFIG.cabinWidth / 2, -CONFIG.cabinHeight / 2, CONFIG.cabinWidth, CONFIG.cabinHeight);
+            ctx.strokeRect(-CONFIG.cabinWidth / 2, -CONFIG.cabinHeight / 2, CONFIG.cabinWidth, CONFIG.cabinHeight);
+
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(-CONFIG.cabinWidth / 4, -CONFIG.cabinHeight / 4, CONFIG.cabinWidth / 2, CONFIG.cabinHeight / 3);
+
+            ctx.fillStyle = "#94a3b8";
+            ctx.fillRect(-6, -CONFIG.cabinHeight / 2 - 4, 12, 4);
+            ctx.fillRect(-6, CONFIG.cabinHeight / 2, 12, 4);
+
+            ctx.restore();
+        }
+
+        meteors.forEach(m => {
+            ctx.save();
+            ctx.translate(m.x, m.y);
+            ctx.rotate(m.rotation);
+            ctx.fillStyle = m.color;
+            ctx.strokeStyle = "#495057";
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.arc(0, 0, m.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        particles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    // ==========================================
+    // 7. 操控与结算
+    // ==========================================
+    window.addEventListener('keydown', (e) => {
+        if (!isPlaying || isPaused) return;
+
+        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+            if (cabin.trackIndex > 0) {
+                cabin.trackIndex--;
+                cabin.targetX = trackXCoords[cabin.trackIndex];
+            }
+        } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+            if (cabin.trackIndex < CONFIG.tracksCount - 1) {
+                cabin.trackIndex++;
+                cabin.targetX = trackXCoords[cabin.trackIndex];
+            }
+        }
+    });
+
+    function gameOver(reason) {
+        isPlaying = false;
+        cancelAnimationFrame(animationId);
+        render();
+
+        const finalHeight = Math.floor(altitude);
+        saveRecord(currentPlayerId, finalHeight, CONFIG.tracksCount);
+
+        setTimeout(() => {
+            alert(`🚨 航行结束！\n原因: ${reason}\n领航员: ${currentPlayerId}\n轨道模式: ${CONFIG.tracksCount} 轨\n最终攀登高度: ${finalHeight} 米`);
+            showView('homeView');
+        }, 500);
+    }
+
+    function saveRecord(id, height, tracks) {
+        const records = getRecords();
+        const now = new Date();
+        const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+        records.unshift({
+            id: id,
+            height: height,
+            tracks: tracks,
+            time: timeStr
+        });
+
+        if (records.length > 50) records.pop();
+
+        SafeStorage.setItem('space_elevator_records', JSON.stringify(records));
+    }
+
+    function getRecords() {
+        const data = SafeStorage.getItem('space_elevator_records');
+        if (!data) return [];
+        try { return JSON.parse(data); }
+        catch (e) { return []; }
+    }
+
+    function renderRecords() {
+        const list = document.getElementById('recordList');
+        const records = getRecords();
+        list.innerHTML = "";
+
+        if (records.length === 0) {
+            list.innerHTML = `<div style="color: #64748b; text-align: center; margin-top: 40px;">暂无飞行记录</div>`;
+            return;
+        }
+
+        records.forEach(rec => {
+            const item = document.createElement('div');
+            item.className = "record-item";
+            item.innerHTML = `
+                <div class="record-header">
+                    <span>${rec.time}</span>
+                    <span style="color: var(--primary);">[${rec.tracks || 3} 轨]</span>
+                </div>
+                <div class="record-body">
+                    <span class="record-player">ID: ${rec.id}</span>
+                    <span class="record-height">${rec.height} m</span>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

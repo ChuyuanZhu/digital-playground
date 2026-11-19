@@ -1,0 +1,826 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vSphere Client - VxRail Update</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;color:#333;background:#f0f0f0;}
+
+/* ====== TOP BAR ====== */
+.topbar{height:40px;background:#393939;display:flex;align-items:center;padding:0 10px;color:#fff;z-index:100;flex-shrink:0;}
+.topbar .hamburger{font-size:18px;margin-right:12px;cursor:pointer;color:#ccc;display:flex;align-items:center;}
+.topbar .hamburger svg{width:18px;height:18px;}
+.topbar .logo{font-size:14.5px;font-weight:500;letter-spacing:.2px;margin-right:20px;white-space:nowrap;color:#fff;}
+.topbar .search-box{display:flex;align-items:center;background:#505050;border-radius:3px;padding:4px 10px;flex:0 1 340px;}
+.topbar .search-box svg{margin-right:6px;flex-shrink:0;opacity:.6;}
+.topbar .search-box input{background:none;border:none;color:#bbb;outline:none;width:100%;font-size:12px;}
+.topbar .right-icons{margin-left:auto;display:flex;gap:6px;align-items:center;color:#ccc;font-size:13px;}
+.topbar .right-icons .ri{display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;border-radius:3px;position:relative;}
+.topbar .right-icons .ri:hover{background:rgba(255,255,255,.1);}
+.topbar .right-icons .ri svg{width:18px;height:18px;}
+.topbar .right-icons .user-label{font-size:12px;cursor:pointer;padding:0 8px;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.topbar .right-icons .user-label svg{width:14px;height:14px;}
+
+/* ====== MAIN LAYOUT ====== */
+.main-wrap{display:flex;height:calc(100% - 40px);overflow:hidden;}
+
+/* ====== LEFT TREE PANEL ====== */
+.left-panel{width:310px;min-width:260px;background:#fff;border-right:1px solid #d9d9d9;display:flex;flex-direction:column;overflow:hidden;position:relative;flex-shrink:0;}
+.left-panel .toolbar{display:flex;align-items:center;padding:4px 6px;border-bottom:1px solid #e5e5e5;gap:2px;}
+.left-panel .toolbar .tb-icon{width:30px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#666;border:1px solid transparent;border-radius:2px;}
+.left-panel .toolbar .tb-icon svg{width:18px;height:18px;}
+.left-panel .toolbar .tb-icon:hover{background:#eef5fc;border-color:#c5ddf0;}
+.left-panel .toolbar .tb-icon.active{border-color:#0079b8;color:#0079b8;background:#eef5fc;}
+.left-panel .collapse-btn{position:absolute;right:-1px;top:44px;width:18px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#888;font-size:11px;background:#f8f8f8;border:1px solid #ddd;border-right:none;border-radius:3px 0 0 3px;z-index:5;}
+.left-panel .collapse-btn:hover{background:#e8e8e8;}
+.tree-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 0;font-size:12.5px;user-select:none;}
+.tree-wrap::-webkit-scrollbar{width:7px;}
+.tree-wrap::-webkit-scrollbar-track{background:#f5f5f5;}
+.tree-wrap::-webkit-scrollbar-thumb{background:#c0c0c0;border-radius:4px;}
+.tree-item{display:flex;align-items:center;padding:2px 8px 2px 0;cursor:pointer;white-space:nowrap;height:22px;line-height:22px;}
+.tree-item:hover{background:#e8f4fc;}
+.tree-item.selected{background:#0079b8;color:#fff;}
+.tree-item .arrow{width:16px;text-align:center;font-size:8px;color:#888;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.tree-item.selected .arrow{color:#fff;}
+.tree-item .t-icon{width:18px;height:18px;margin-right:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.tree-item .t-icon svg{width:16px;height:16px;}
+.tree-item .t-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+.tree-item .t-status{font-size:10px;margin-left:4px;font-style:italic;opacity:.85;white-space:nowrap;}
+.tree-item .t-status.maint{color:#e68a00;}
+.tree-item .t-status.nonresp{color:#cc0000;}
+.tree-item.selected .t-status.maint,
+.tree-item.selected .t-status.nonresp{color:#ffd;}
+
+/* ====== MIDDLE NAV PANEL ====== */
+.mid-panel{width:168px;min-width:140px;background:#fff;border-right:1px solid #d9d9d9;overflow-y:auto;padding:6px 0;flex-shrink:0;}
+.mid-panel::-webkit-scrollbar{width:6px;}
+.mid-panel::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
+.mid-panel .nav-item{padding:4px 14px;font-size:12.5px;cursor:pointer;color:#333;}
+.mid-panel .nav-item:hover{background:#e8f4fc;}
+.mid-panel .nav-item.selected{background:#006778;color:#fff;font-weight:500;}
+.mid-panel .nav-section{padding:10px 14px 3px;font-size:12px;font-weight:700;color:#333;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.mid-panel .nav-section .chev{font-size:10px;color:#999;}
+
+/* ====== RIGHT CONTENT AREA ====== */
+.right-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f5f5f5;}
+.cluster-header{display:flex;align-items:center;padding:8px 16px;background:#fff;border-bottom:1px solid #e0e0e0;}
+.cluster-header .cl-icon{width:22px;height:22px;margin-right:8px;display:flex;align-items:center;justify-content:center;}
+.cluster-header .cl-icon svg{width:20px;height:20px;}
+.cluster-header .cl-name{font-size:15px;font-weight:400;color:#333;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cluster-header .actions-btn{margin-left:12px;background:none;border:none;color:#0079b8;cursor:pointer;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.cluster-header .actions-btn .dots{font-size:16px;line-height:1;font-weight:700;letter-spacing:1px;}
+
+/* Main tabs */
+.main-tabs{display:flex;background:#fff;border-bottom:2px solid #e0e0e0;padding:0 16px;}
+.main-tabs .tab{padding:8px 12px;font-size:12.5px;cursor:pointer;position:relative;color:#555;white-space:nowrap;}
+.main-tabs .tab:hover{color:#0079b8;}
+.main-tabs .tab.active{color:#0079b8;font-weight:600;}
+.main-tabs .tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#0079b8;}
+
+/* Content body */
+.content-body{flex:1;overflow:hidden;padding:12px 20px 0;background:#f5f5f5;display:flex;flex-direction:column;}
+.content-body h2{font-size:17px;font-weight:400;margin-bottom:10px;color:#333;flex-shrink:0;}
+.sub-tabs{display:flex;gap:0;margin-bottom:14px;flex-shrink:0;}
+.sub-tabs .stab{padding:5px 14px;font-size:11.5px;cursor:pointer;border:1px solid #ccc;background:#fff;color:#555;text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
+.sub-tabs .stab:first-child{border-radius:3px 0 0 3px;}
+.sub-tabs .stab:last-child{border-radius:0 3px 3px 0;}
+.sub-tabs .stab+.stab{border-left:none;}
+.sub-tabs .stab.active{background:#0079b8;color:#fff;border-color:#0079b8;}
+
+.update-status{margin-bottom:12px;flex-shrink:0;}
+.update-status .title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.update-status .desc{font-size:12.5px;color:#555;}
+
+/* Update box */
+.update-box{background:#fff;border:1px solid #d9d9d9;border-radius:3px;display:flex;flex-direction:column;flex:1;min-height:0;}
+.progress-row{padding:10px 14px 6px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.progress-track{flex:1;height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#006778;border-radius:3px;transition:width .5s ease;}
+.progress-pct{font-size:11px;color:#555;min-width:28px;text-align:right;}
+
+.log-tabs{display:flex;padding:0 14px 6px;gap:16px;border-bottom:1px solid #e5e5e5;align-items:center;flex-shrink:0;}
+.log-tab{display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 0;position:relative;color:#555;}
+.log-tab.active{color:#333;font-weight:600;}
+.log-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#0079b8;}
+.log-tab .badge-icon{display:inline-flex;align-items:center;justify-content:center;}
+.log-tab .badge-icon svg{width:14px;height:14px;}
+
+/* Log area */
+.log-area{flex:1;overflow-y:auto;padding:4px 14px;position:relative;min-height:0;}
+.log-area::-webkit-scrollbar{width:8px;}
+.log-area::-webkit-scrollbar-track{background:#fafafa;}
+.log-area::-webkit-scrollbar-thumb{background:#c0c0c0;border-radius:4px;}
+.log-area::-webkit-scrollbar-thumb:hover{background:#999;}
+.log-line{display:flex;align-items:flex-start;padding:1.5px 0;animation:fadeIn .25s ease;}
+.log-line .check{width:16px;height:16px;flex-shrink:0;margin-right:8px;margin-top:2px;display:flex;align-items:center;justify-content:center;}
+.log-line .check svg{width:15px;height:15px;}
+.log-line .text{line-height:1.6;word-break:break-word;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);}}
+
+/* Controls bar */
+.controls-bar{display:flex;align-items:center;gap:10px;padding:5px 14px;border-top:1px solid #eee;background:#fafafa;opacity:0.12;transition:opacity .35s ease;flex-shrink:0;flex-wrap:wrap;}
+.controls-bar:hover{opacity:1;}
+.controls-bar label{font-size:11px;color:#666;white-space:nowrap;}
+.controls-bar select,.controls-bar input[type=range]{font-size:11px;cursor:pointer;}
+.controls-bar select{padding:2px 4px;border:1px solid #ccc;border-radius:3px;background:#fff;}
+.controls-bar input[type=range]{width:72px;vertical-align:middle;}
+.controls-bar .sep{width:1px;height:14px;background:#ddd;}
+.controls-bar .ctrl-btn{background:#fff;border:1px solid #bbb;border-radius:3px;padding:2px 8px;font-size:11px;cursor:pointer;color:#444;display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.controls-bar .ctrl-btn:hover{background:#e8f4fc;border-color:#0079b8;color:#0079b8;}
+.controls-bar .ctrl-btn svg{width:12px;height:12px;}
+.controls-bar .ctrl-btn.active-pause{background:#fff3cd;border-color:#e6a817;color:#b8860b;}
+
+/* Start row */
+.start-row{padding:10px 20px;background:#f5f5f5;display:flex;justify-content:center;flex-shrink:0;}
+.start-row.hidden{display:none;}
+.start-row .start-btn{padding:7px 28px;background:#0079b8;color:#fff;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;}
+.start-row .start-btn:hover{background:#005f8f;}
+.start-row .start-btn:disabled{background:#bbb;cursor:not-allowed;}
+
+/* Scroll hint */
+.scroll-hint{position:absolute;bottom:6px;right:20px;background:#0079b8;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:11px;cursor:pointer;display:none;z-index:10;opacity:.85;}
+.scroll-hint:hover{opacity:1;}
+
+/* ====== BOTTOM TASKS BAR ====== */
+.bottom-bar{flex-shrink:0;background:#fff;border-top:1px solid #d9d9d9;}
+.bottom-tabs{display:flex;padding:0 8px;border-bottom:1px solid #e5e5e5;align-items:center;}
+.bottom-tabs .bt-toggle{width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:#888;margin-right:4px;}
+.bottom-tabs .bt-tab{padding:4px 10px;font-size:12px;cursor:pointer;color:#555;border-bottom:2px solid transparent;}
+.bottom-tabs .bt-tab.active{color:#0079b8;border-bottom-color:#0079b8;}
+.tasks-table{font-size:11px;width:100%;border-collapse:collapse;}
+.tasks-table th{text-align:left;padding:3px 8px;background:#f5f5f5;border-bottom:1px solid #e0e0e0;font-weight:600;color:#555;white-space:nowrap;}
+.tasks-table td{padding:3px 8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;color:#333;}
+.tasks-table td a{color:#0079b8;text-decoration:none;}
+.tasks-table .status-ok{display:flex;align-items:center;gap:3px;}
+.tasks-table .status-ok svg{width:13px;height:13px;}
+
+/* ====== UPLOAD MODAL ====== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:#fff;border-radius:6px;padding:24px 28px;width:400px;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+.modal-box h3{font-size:15px;margin-bottom:14px;color:#333;display:flex;align-items:center;gap:6px;}
+.modal-box .file-label{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.modal-box .file-label span{font-size:12.5px;color:#555;}
+.modal-box .file-label input{font-size:12.5px;}
+.modal-box .btn-row{display:flex;gap:10px;justify-content:flex-end;}
+.modal-box .btn{padding:6px 20px;border:none;border-radius:3px;font-size:12.5px;cursor:pointer;font-weight:600;}
+.modal-box .btn.primary{background:#0079b8;color:#fff;}
+.modal-box .btn.primary:hover{background:#005f8f;}
+.modal-box .btn.primary:disabled{background:#bbb;cursor:not-allowed;}
+
+@media(max-width:900px){.left-panel{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <span class="hamburger">
+    <svg viewBox="0 0 18 18" fill="none" stroke="#ccc" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
+  </span>
+  <span class="logo">vSphere Client</span>
+  <div class="search-box">
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="#999" stroke-width="1.6"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.2" y1="10.2" x2="14.5" y2="14.5"/></svg>
+    <input type="text" placeholder="Search in all environments" readonly>
+  </div>
+  <div class="right-icons">
+    <div class="ri"><svg viewBox="0 0 20 20" fill="none" stroke="#ccc" stroke-width="1.6"><path d="M17 10a7 7 0 1 1-1.4-4.2" stroke-linecap="round"/><polyline points="17,2 17,6 13,6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="user-label" style="color:#ccc;">
+      <svg viewBox="0 0 16 16" fill="none" stroke="#ccc" stroke-width="1.4"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 15 a5.5 5 0 0 1 11 0" stroke-linecap="round"/></svg>
+      <span id="userLabel">Administrator@VSPHERE.LOCAL</span>
+      <svg viewBox="0 0 10 6" fill="none" stroke="#ccc" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 5,5 9,1"/></svg>
+    </div>
+    <div class="ri"><svg viewBox="0 0 20 20" fill="none" stroke="#ccc" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M7.5 7.5a2.5 2.5 0 0 1 4.6 1.3c0 1.7-2.6 1.7-2.6 3.2" stroke-linecap="round"/><circle cx="10" cy="15" r=".8" fill="#ccc" stroke="none"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 20 20" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M10 2a5 5 0 0 0-5 5c0 4-2 5-2 5h14s-2-1-2-5a5 5 0 0 0-5-5z" stroke-linejoin="round"/><path d="M8.5 17a1.5 1.5 0 0 0 3 0"/></svg></div>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+<!-- ===== LEFT TREE PANEL ===== -->
+<div class="left-panel" id="leftPanel">
+  <div class="toolbar">
+    <div class="tb-icon active" title="Hosts and Clusters">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3">
+        <rect x="1" y="1" width="7" height="5" rx=".8"/><rect x="1" y="8" width="7" height="5" rx=".8"/>
+        <line x1="10" y1="3.5" x2="17" y2="3.5"/><line x1="10" y1="6.5" x2="15" y2="6.5"/>
+        <line x1="10" y1="10.5" x2="17" y2="10.5"/><line x1="10" y1="13.5" x2="15" y2="13.5"/>
+        <line x1="1" y1="16" x2="17" y2="16"/>
+      </svg>
+    </div>
+    <div class="tb-icon" title="VMs and Templates">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3">
+        <rect x="2" y="1.5" width="14" height="10" rx="1"/><line x1="9" y1="11.5" x2="9" y2="14"/><line x1="5" y1="14.5" x2="13" y2="14.5"/>
+        <rect x="5.5" y="4" width="7" height="5" rx=".5" fill="currentColor" opacity=".15"/>
+      </svg>
+    </div>
+    <div class="tb-icon" title="Storage">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3">
+        <ellipse cx="9" cy="4" rx="7" ry="2.5"/><path d="M2 4v10c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V4"/>
+        <ellipse cx="9" cy="9" rx="7" ry="2.5" stroke-dasharray="2 2" opacity=".4"/>
+      </svg>
+    </div>
+    <div class="tb-icon" title="Networking">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3">
+        <circle cx="9" cy="9" r="7"/><ellipse cx="9" cy="9" rx="3" ry="7"/>
+        <line x1="2" y1="6.5" x2="16" y2="6.5"/><line x1="2" y1="11.5" x2="16" y2="11.5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="collapse-btn" id="collapseBtn" title="Collapse">‹</div>
+  <div class="tree-wrap" id="treeWrap"></div>
+</div>
+
+<!-- ===== MIDDLE NAV ===== -->
+<div class="mid-panel">
+  <div class="nav-item">General</div>
+  <div class="nav-item">Datastores</div>
+  <div class="nav-section">vSAN <span class="chev">▾</span></div>
+  <div class="nav-item" style="padding-left:26px;">Services</div>
+  <div class="nav-item" style="padding-left:26px;">Disk Management</div>
+  <div class="nav-item" style="padding-left:26px;">Fault Domains</div>
+  <div class="nav-item" style="padding-left:26px;">Datastore Management</div>
+  <div class="nav-section">Desired State <span class="chev">▾</span></div>
+  <div class="nav-item" style="padding-left:26px;">Image</div>
+  <div class="nav-item" style="padding-left:26px;">Configuration</div>
+  <div class="nav-section">VxRail <span class="chev">▾</span></div>
+  <div class="nav-item" style="padding-left:26px;">Dashboard</div>
+  <div class="nav-item" style="padding-left:26px;">System</div>
+  <div class="nav-item" style="padding-left:26px;">Compliance</div>
+  <div class="nav-item" style="padding-left:26px;">Backup</div>
+  <div class="nav-item" style="padding-left:26px;">Hosts</div>
+  <div class="nav-item" style="padding-left:26px;">Managed Folders</div>
+  <div class="nav-item selected" style="padding-left:26px;">Updates</div>
+  <div class="nav-item" style="padding-left:26px;">Security</div>
+  <div class="nav-item" style="padding-left:26px;">Settings</div>
+  <div class="nav-item" style="padding-left:26px;">Support</div>
+  <div class="nav-item" style="padding-left:26px;">Market</div>
+</div>
+
+<!-- ===== RIGHT CONTENT ===== -->
+<div class="right-panel">
+  <div class="cluster-header">
+    <div class="cl-icon">
+      <svg viewBox="0 0 20 20"><rect x="1" y="1" width="8" height="8" rx="1.2" fill="#7a7a7a"/><rect x="11" y="1" width="8" height="8" rx="1.2" fill="#7a7a7a"/><rect x="1" y="11" width="8" height="8" rx="1.2" fill="#7a7a7a"/><rect x="11" y="11" width="8" height="8" rx="1.2" fill="#7a7a7a"/></svg>
+    </div>
+    <span class="cl-name" id="clusterTitle"></span>
+    <button class="actions-btn"><span class="dots">⋮</span> ACTIONS</button>
+  </div>
+
+  <div class="main-tabs">
+    <div class="tab">Summary</div>
+    <div class="tab">Monitor</div>
+    <div class="tab active">Configure</div>
+    <div class="tab">Permissions</div>
+    <div class="tab">Hosts</div>
+    <div class="tab">VMs</div>
+    <div class="tab">Datastores</div>
+    <div class="tab">Networks</div>
+    <div class="tab">Updates</div>
+  </div>
+
+  <div class="content-body" id="contentBody">
+    <h2>Updates</h2>
+    <div class="sub-tabs">
+      <div class="stab">Internet Updates</div>
+      <div class="stab active">Local Updates</div>
+      <div class="stab">History</div>
+      <div class="stab">Settings</div>
+    </div>
+    <div class="update-status">
+      <div class="title">VxRail Update In Progress: Version 8.0.390-29701531</div>
+      <div class="desc">The update process may take significant time to complete. Come back later to check the results.</div>
+    </div>
+    <div class="update-box" id="updateBox">
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="log-tabs">
+        <div class="log-tab">
+          <span class="badge-icon"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="#c62828" stroke-width="1.5"/><line x1="5" y1="5" x2="11" y2="11" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="5" x2="5" y2="11" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          Errors(<span id="errCount">0</span>)
+        </div>
+        <div class="log-tab">
+          <span class="badge-icon"><svg viewBox="0 0 16 16"><path d="M8 1 L15 14 H1 Z" fill="none" stroke="#e6a817" stroke-width="1.4" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="10" stroke="#e6a817" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12" r=".7" fill="#e6a817"/></svg></span>
+          Warnings(<span id="warnCount">0</span>)
+        </div>
+        <div class="log-tab active">All(<span id="allCount">0</span>)</div>
+      </div>
+      <div class="log-area" id="logArea">
+        <button class="scroll-hint" id="scrollHint" title="回到底部">↓ 回到最新</button>
+      </div>
+      <!-- Controls bar -->
+      <div class="controls-bar" id="controlsBar">
+        <button class="ctrl-btn" id="pauseBtn" title="暂停/继续">
+          <svg id="pauseIcon" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="4" height="10" rx=".5"/><rect x="7" y="1" width="4" height="10" rx=".5"/></svg>
+          <span id="pauseLabel">暂停</span>
+        </button>
+        <button class="ctrl-btn" id="topBtn" title="回到开头">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="1.5" x2="10" y2="1.5"/><polyline points="3,8 6,4 9,8"/><line x1="6" y1="4.5" x2="6" y2="11"/></svg>
+          回到开头
+        </button>
+        <div class="sep"></div>
+        <label>速度</label>
+        <input type="range" id="speedSlider" min="1" max="10" value="4" title="滚动速度">
+        <span id="speedLabel" style="font-size:11px;color:#888;min-width:36px;">3.2s</span>
+        <div class="sep"></div>
+        <label>字号</label>
+        <input type="range" id="fontSizeSlider" min="12" max="24" value="13" title="字体大小">
+        <span id="fontSizeLabel" style="font-size:11px;color:#888;min-width:28px;">13px</span>
+        <div class="sep"></div>
+        <label>字体</label>
+        <select id="fontSelect">
+          <option value="'Segoe UI',Helvetica,Arial,sans-serif">Segoe UI</option>
+          <option value="Consolas,'Courier New',monospace">Consolas</option>
+          <option value="'Courier New',monospace">Courier New</option>
+          <option value="'Microsoft YaHei',sans-serif">微软雅黑</option>
+          <option value="'SimSun',serif">宋体</option>
+          <option value="Georgia,serif">Georgia</option>
+        </select>
+        <div class="sep"></div>
+        <label>行高</label>
+        <select id="lineHeightSelect">
+          <option value="1.4">紧凑</option>
+          <option value="1.6" selected>适中</option>
+          <option value="1.9">宽松</option>
+          <option value="2.2">很宽</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start button row (hidden after start) -->
+  <div class="start-row" id="startRow">
+    <button class="start-btn" id="startBtn" disabled>升级开始</button>
+  </div>
+
+  <!-- Bottom tasks bar -->
+  <div class="bottom-bar">
+    <div class="bottom-tabs">
+      <div class="bt-toggle">▾</div>
+      <div class="bt-tab active">Recent Tasks</div>
+      <div class="bt-tab">Alarms</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tasks-table">
+        <thead><tr>
+          <th>Task Name</th><th>Target</th><th>Status</th><th>Details</th><th>Initiator</th><th>Queued For</th><th>Start Time</th><th>Completion Time</th>
+        </tr></thead>
+        <tbody id="tasksTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== UPLOAD MODAL ===== -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal-box">
+    <h3>
+      <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="#0079b8" stroke-width="1.6"><path d="M4 17h12a1 1 0 001-1V6l-5-4H4a1 1 0 00-1 1v14a1 1 0 001 0z" stroke-linejoin="round"/><polyline points="12,2 12,6 16,6" stroke-linejoin="round"/></svg>
+      上传阅读内容
+    </h3>
+    <div class="file-label">
+      <span>请选择一个 <strong>.txt</strong> 文件作为模拟升级日志的阅读内容：</span>
+      <input type="file" id="fileInput" accept=".txt">
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="uploadBtn" disabled>确认上传</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  SVG ICON TEMPLATES
+// ============================================================
+const ICONS = {
+  vcenter: `<svg viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" rx="1.2" fill="#4b8bc8" stroke="#2a6ba5" stroke-width=".6"/><rect x="3" y="5" width="4" height="2.5" rx=".4" fill="#fff" opacity=".7"/><rect x="9" y="5" width="4" height="2.5" rx=".4" fill="#fff" opacity=".7"/><rect x="3" y="9" width="4" height="2.5" rx=".4" fill="#fff" opacity=".5"/><rect x="9" y="9" width="4" height="2.5" rx=".4" fill="#fff" opacity=".5"/></svg>`,
+  datacenter: `<svg viewBox="0 0 16 16"><path d="M3 2h10a1 1 0 011 1v12H2V3a1 1 0 011-1z" fill="none" stroke="#777" stroke-width="1.2"/><rect x="4.5" y="4" width="2.5" height="2" rx=".3" fill="#aaa"/><rect x="9" y="4" width="2.5" height="2" rx=".3" fill="#aaa"/><rect x="4.5" y="7.5" width="2.5" height="2" rx=".3" fill="#aaa"/><rect x="9" y="7.5" width="2.5" height="2" rx=".3" fill="#aaa"/><rect x="6.5" y="11" width="3" height="4" rx=".3" fill="#999"/></svg>`,
+  folder: `<svg viewBox="0 0 16 16"><path d="M1.5 3.5h5l1.5 1.5h6.5v9h-13z" fill="#e8c44a" stroke="#c9a825" stroke-width=".7" stroke-linejoin="round"/></svg>`,
+  cluster: `<svg viewBox="0 0 16 16"><rect x=".5" y=".5" width="6.5" height="6.5" rx="1" fill="#6a6a6a" stroke="#555" stroke-width=".5"/><rect x="9" y=".5" width="6.5" height="6.5" rx="1" fill="#6a6a6a" stroke="#555" stroke-width=".5"/><rect x=".5" y="9" width="6.5" height="6.5" rx="1" fill="#6a6a6a" stroke="#555" stroke-width=".5"/><rect x="9" y="9" width="6.5" height="6.5" rx="1" fill="#6a6a6a" stroke="#555" stroke-width=".5"/></svg>`,
+  host: `<svg viewBox="0 0 16 16"><rect x="1" y="2.5" width="14" height="4.5" rx=".8" fill="none" stroke="#666" stroke-width="1.1"/><rect x="1" y="9" width="14" height="4.5" rx=".8" fill="none" stroke="#666" stroke-width="1.1"/><circle cx="12.5" cy="4.75" r="1" fill="#5cb85c"/><circle cx="12.5" cy="11.25" r="1" fill="#5cb85c"/><line x1="3" y1="4.75" x2="9" y2="4.75" stroke="#999" stroke-width=".8"/><line x1="3" y1="11.25" x2="9" y2="11.25" stroke="#999" stroke-width=".8"/></svg>`,
+  vm: `<svg viewBox="0 0 16 16"><rect x="1.5" y="1" width="13" height="10" rx="1" fill="none" stroke="#666" stroke-width="1.1"/><rect x="4" y="3.5" width="8" height="5" rx=".5" fill="#79b8e8" opacity=".5"/><line x1="8" y1="11" x2="8" y2="13" stroke="#666" stroke-width="1.1"/><line x1="4.5" y1="13.5" x2="11.5" y2="13.5" stroke="#666" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  vmApp: `<svg viewBox="0 0 16 16"><rect x="1.5" y="1" width="13" height="10" rx="1" fill="none" stroke="#555" stroke-width="1.1"/><rect x="4" y="3.5" width="8" height="5" rx=".5" fill="#5cb85c" opacity=".45"/><line x1="8" y1="11" x2="8" y2="13" stroke="#555" stroke-width="1.1"/><line x1="4.5" y1="13.5" x2="11.5" y2="13.5" stroke="#555" stroke-width="1.2" stroke-linecap="round"/></svg>`
+};
+const checkSVG = `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#4caf50"/><path d="M4.5 8.2 L7 10.7 L11.5 5.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const completedSVG = `<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#4caf50"/><path d="M4 7.2 L6.2 9.4 L10 4.8" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+// ============================================================
+//  RANDOM GENERATORS
+// ============================================================
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[randInt(0,arr.length-1)];}
+function hex4(){return Math.random().toString(16).slice(2,6);}
+function genUUID(){return `${hex4()}${hex4()}-${hex4()}-${hex4()}-${hex4()}-${hex4()}${hex4()}${hex4()}`;}
+function pad(n,w){return String(n).padStart(w,'0');}
+
+const SITE_PFX    = ['rp','dc','sv','nj','ch','la','at','ln','sg','hk','dts','prd','stg','dev','uat'];
+const DOMAIN_PARTS= [['ripon','alliancels','com'],['svt','lab','emc','com'],['corp','vxinfra','net'],['prod','dell-lab','io'],['ent','acmedata','com'],['cloud','techvault','org'],['infra','megacorp','net'],['ops','globalfin','com']];
+const VM_ROLES    = ['APP','SQL','WEB','ADC','ACA','ALT','ACC','APR','ASA','ARL','FS','MFG','EXC','BKP','DNS','MON','LNX','CTX','VDI','RDS','SVC','CAM','RPT','NAV','CRM','ERP','HRM','PLM','GIT','CI'];
+const VM_SUFFIXES = [' - AD Cert Authority',' - SQL Prod',' - Exchange Server',' - File Server',' - Backup Proxy',' - Domain Controller',' - App Prod',' - App Test',' - Web Frontend',' - Monitoring',' - Print Server',' - SCCM',' - WSUS',' - Citrix VDA',''];
+
+let sitePfx, siteNum, domainFull, vcName, dcName, clusterUUID, clusterName;
+let hostNames = [];
+let vmNames   = [];
+let hostStatusEls = [];
+
+function generateRandomInfra(){
+  // Site prefix
+  const sp = pick(SITE_PFX);
+  siteNum = pad(randInt(1,9),2);
+  sitePfx = sp + siteNum;
+
+  // Domain
+  const dp = pick(DOMAIN_PARTS);
+  domainFull = dp.join('.');
+
+  // vCenter name  (e.g. DTS-VxRail2-vc.svt.lab.emc.com  or  rp01vcr001.ripon.alliancels.com)
+  if(Math.random()<0.5){
+    vcName = `${sitePfx}vcr${pad(randInt(1,3),3)}.${domainFull}`;
+  } else {
+    const tag = sp.toUpperCase() + '-VxRail' + randInt(1,5);
+    vcName = `${tag}-vc.${domainFull}`;
+  }
+
+  dcName = 'VxRail-Datacenter';
+  clusterUUID = genUUID();
+  clusterName = `VxRail-Virtual-SAN-Cluster-${clusterUUID}`;
+
+  // Hosts (nodes): 4-12
+  const hostCount = randInt(4,12);
+  hostNames = [];
+  for(let i=1;i<=hostCount;i++){
+    if(vcName.includes('-vc.')){
+      // style: dts-vxrail2-01.svt.lab.emc.com
+      const base = vcName.split('-vc.')[0].toLowerCase();
+      hostNames.push(`${base}-${pad(i,2)}.${domainFull}`);
+    } else {
+      hostNames.push(`${sitePfx}vxr${pad(i,3)}.${domainFull}`);
+    }
+  }
+
+  // VMs: 10-25 random names
+  const vmCount = randInt(10,25);
+  vmNames = [];
+  const usedNames = new Set();
+  // Always include these two special VMs
+  vmNames.push({name:'VMware vCenter Server Appliance',special:true});
+  vmNames.push({name:'VxRail Manager',special:true});
+  usedNames.add('a');usedNames.add('b');
+
+  const pfx = sp.toUpperCase() + siteNum;
+  for(let i=0;i<vmCount;i++){
+    let name;
+    const r = Math.random();
+    if(r<0.5){
+      name = pfx + pick(VM_ROLES) + pad(randInt(1,20),2);
+    } else if(r<0.75){
+      name = pfx + pick(VM_ROLES) + pad(randInt(1,12),2) + pick(VM_SUFFIXES);
+    } else {
+      name = sitePfx.toLowerCase() + pick(['app','sql','web','dns','mon','bkp','lnx','ctx','svc','rpt']) + pad(randInt(1,30),2);
+    }
+    const key = name.toLowerCase();
+    if(!usedNames.has(key)){
+      usedNames.add(key);
+      vmNames.push({name:name,special:false});
+    }
+  }
+}
+
+// ============================================================
+//  BUILD TREE
+// ============================================================
+function buildTree(){
+  const tw = document.getElementById('treeWrap');
+  let html = '';
+
+  // vCenter root (selected / highlighted)
+  html += `<div class="tree-item selected" style="padding-left:4px"><span class="arrow">▾</span><span class="t-icon">${ICONS.vcenter}</span><span class="t-label">${esc(vcName)}</span></div>`;
+  // Datacenter
+  html += `<div class="tree-item" style="padding-left:22px"><span class="arrow">▾</span><span class="t-icon">${ICONS.datacenter}</span><span class="t-label">${esc(dcName)}</span></div>`;
+  // Cluster
+  const clTrunc = clusterName.length>45 ? clusterName.slice(0,45)+'…' : clusterName;
+  html += `<div class="tree-item" style="padding-left:40px"><span class="arrow">▾</span><span class="t-icon">${ICONS.cluster}</span><span class="t-label">${esc(clTrunc)}</span></div>`;
+
+  // Hosts (nodes) — server-rack icon
+  hostNames.forEach((h,i)=>{
+    html += `<div class="tree-item" style="padding-left:58px"><span class="arrow"></span><span class="t-icon">${ICONS.host}</span><span class="t-label">${esc(h)}</span><span class="t-status" id="hostStatus${i}"></span></div>`;
+  });
+
+  // VMs — monitor icon
+  vmNames.forEach((v)=>{
+    const icon = v.special ? ICONS.vmApp : ICONS.vm;
+    html += `<div class="tree-item" style="padding-left:58px"><span class="arrow"></span><span class="t-icon">${icon}</span><span class="t-label">${esc(v.name)}</span></div>`;
+  });
+
+  tw.innerHTML = html;
+  document.getElementById('clusterTitle').textContent = clusterName;
+
+  // Collect host status elements
+  hostStatusEls = [];
+  hostNames.forEach((_,i)=>{
+    hostStatusEls.push(document.getElementById('hostStatus'+i));
+  });
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+// ============================================================
+//  HOST STATUS CHANGES (one at a time, ≥20 min interval)
+// ============================================================
+let activeStatusIdx = -1;  // which host currently has a status, -1 = none
+let statusTimer = null;
+
+function startStatusChanges(){
+  scheduleNextStatus();
+}
+
+function scheduleNextStatus(){
+  // 20–35 minutes
+  const delay = randInt(20*60*1000, 35*60*1000);
+  statusTimer = setTimeout(()=>{
+    changeHostStatus();
+    scheduleNextStatus();
+  }, delay);
+}
+
+function changeHostStatus(){
+  if(!hostStatusEls.length) return;
+
+  // Clear previous status
+  if(activeStatusIdx >= 0 && hostStatusEls[activeStatusIdx]){
+    hostStatusEls[activeStatusIdx].textContent = '';
+    hostStatusEls[activeStatusIdx].className = 't-status';
+  }
+
+  // Pick a new random host (different from previous if possible)
+  let newIdx = randInt(0, hostStatusEls.length-1);
+  if(hostStatusEls.length > 1){
+    while(newIdx === activeStatusIdx) newIdx = randInt(0, hostStatusEls.length-1);
+  }
+
+  const el = hostStatusEls[newIdx];
+  if(!el) return;
+
+  if(Math.random() < 0.55){
+    el.textContent = '(Maintenance Mode)';
+    el.className = 't-status maint';
+  } else {
+    el.textContent = '(Non-responsive)';
+    el.className = 't-status nonresp';
+  }
+  activeStatusIdx = newIdx;
+}
+
+// ============================================================
+//  GENERATE BOTTOM TASKS
+// ============================================================
+function buildTasks(){
+  const taskNames = ['Start service','Remove snapshot','Reconfigure virtual machine','Power On VM','Sync Library','Relocate VM','Update VIB','Apply host profile','Clone virtual machine'];
+  const initiators = ['VSPHERE.LOCAL\\vcmgmt','VSPHERE.LOCAL\\vpxd-extension','VSPHERE.LOCAL\\administrator'];
+  const tbody = document.getElementById('tasksTbody');
+  const count = randInt(1,3);
+  let html = '';
+  for(let i=0;i<count;i++){
+    const tn = pick(taskNames);
+    const tgt = hostNames.length ? pick(hostNames) : vcName;
+    const init = pick(initiators);
+    const ms = randInt(2,200)+' ms';
+    const t = new Date(Date.now() - randInt(60000,600000));
+    const fmt = d=>`${d.toLocaleDateString('en-US')}, ${d.toLocaleTimeString('en-US')}`;
+    html += `<tr><td>${esc(tn)}</td><td><a href="#">${esc(tgt)}</a></td><td><span class="status-ok">${completedSVG} Completed</span></td><td></td><td>${esc(init)}</td><td>${ms}</td><td>${fmt(t)}</td><td>${fmt(t)}</td></tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ============================================================
+//  GLOBAL STATE
+// ============================================================
+let logLines = [];
+let lineIdx  = 0;
+let timer    = null;
+let isRunning    = false;
+let isPaused     = false;
+let isUserScrolled = false;
+
+const speedMap = [8000,6000,4500,3200,2400,1800,1200,800,500,280];
+let currentSpeed = speedMap[3];
+
+// ============================================================
+//  DOM REFS
+// ============================================================
+const modal        = document.getElementById('uploadModal');
+const fileInput    = document.getElementById('fileInput');
+const uploadBtn    = document.getElementById('uploadBtn');
+const startBtn     = document.getElementById('startBtn');
+const startRow     = document.getElementById('startRow');
+const logArea      = document.getElementById('logArea');
+const scrollHint   = document.getElementById('scrollHint');
+const progressFill = document.getElementById('progressFill');
+const progressPct  = document.getElementById('progressPct');
+const allCount     = document.getElementById('allCount');
+const errCount     = document.getElementById('errCount');
+const warnCount    = document.getElementById('warnCount');
+const speedSlider  = document.getElementById('speedSlider');
+const speedLabel   = document.getElementById('speedLabel');
+const fontSizeSlider = document.getElementById('fontSizeSlider');
+const fontSizeLabel  = document.getElementById('fontSizeLabel');
+const fontSelect     = document.getElementById('fontSelect');
+const lineHeightSel  = document.getElementById('lineHeightSelect');
+const pauseBtn       = document.getElementById('pauseBtn');
+const pauseLabel     = document.getElementById('pauseLabel');
+const pauseIcon      = document.getElementById('pauseIcon');
+const topBtn         = document.getElementById('topBtn');
+
+// ============================================================
+//  FILE UPLOAD
+// ============================================================
+fileInput.addEventListener('change',()=>{uploadBtn.disabled=!fileInput.files.length;});
+
+uploadBtn.addEventListener('click',()=>{
+  const file = fileInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const text = e.target.result;
+    logLines = text.replace(/\r\n/g,'\n').split('\n');
+    while(logLines.length && logLines[logLines.length-1].trim()==='') logLines.pop();
+    lineIdx = 0;
+    logArea.querySelectorAll('.log-line').forEach(el=>el.remove());
+    allCount.textContent = logLines.length;
+    warnCount.textContent = randInt(0,3);
+    errCount.textContent = '0';
+    startBtn.disabled = false;
+    modal.classList.add('hidden');
+    updateProgress();
+  };
+  reader.readAsText(file,'utf-8');
+});
+
+// ============================================================
+//  UPGRADE LOGIC
+// ============================================================
+startBtn.addEventListener('click',()=>{
+  if(isRunning) return;
+  isRunning = true;
+  isPaused  = false;
+  // Hide start row entirely
+  startRow.classList.add('hidden');
+  addNextLine();
+});
+
+function addNextLine(){
+  if(!isRunning || isPaused) return;
+  if(lineIdx >= logLines.length){
+    isRunning = false;
+    progressFill.style.width = '100%';
+    progressPct.textContent = '100%';
+    return;
+  }
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = `<span class="check">${checkSVG}</span><span class="text">${esc(logLines[lineIdx])}</span>`;
+  logArea.insertBefore(div, scrollHint);
+  lineIdx++;
+  updateProgress();
+
+  if(!isUserScrolled){
+    logArea.scrollTop = logArea.scrollHeight;
+  } else {
+    scrollHint.style.display = 'block';
+  }
+  timer = setTimeout(addNextLine, currentSpeed);
+}
+
+function updateProgress(){
+  if(!logLines.length) return;
+  const pct = Math.round((lineIdx/logLines.length)*100);
+  progressFill.style.width = pct+'%';
+  progressPct.textContent = pct+'%';
+}
+
+// ============================================================
+//  PAUSE / RESUME
+// ============================================================
+pauseBtn.addEventListener('click',()=>{
+  if(!isRunning) return;
+  isPaused = !isPaused;
+  if(isPaused){
+    clearTimeout(timer);
+    pauseLabel.textContent = '继续';
+    pauseIcon.innerHTML = `<polygon points="2,1 11,6 2,11" fill="currentColor"/>`;
+    pauseBtn.classList.add('active-pause');
+  } else {
+    pauseLabel.textContent = '暂停';
+    pauseIcon.innerHTML = `<rect x="1" y="1" width="4" height="10" rx=".5"/><rect x="7" y="1" width="4" height="10" rx=".5"/>`;
+    pauseBtn.classList.remove('active-pause');
+    addNextLine();
+  }
+});
+
+// ============================================================
+//  BACK TO TOP
+// ============================================================
+topBtn.addEventListener('click',()=>{
+  logArea.scrollTop = 0;
+  isUserScrolled = true;
+  if(isRunning) scrollHint.style.display = 'block';
+});
+
+// ============================================================
+//  SCROLL
+// ============================================================
+logArea.addEventListener('scroll',()=>{
+  const atBot = logArea.scrollHeight - logArea.scrollTop - logArea.clientHeight < 40;
+  if(atBot){isUserScrolled=false;scrollHint.style.display='none';}
+  else if(isRunning){isUserScrolled=true;scrollHint.style.display='block';}
+});
+logArea.addEventListener('wheel',()=>{
+  if(isRunning){
+    const atBot = logArea.scrollHeight - logArea.scrollTop - logArea.clientHeight < 40;
+    if(!atBot) isUserScrolled = true;
+  }
+},{passive:true});
+scrollHint.addEventListener('click',()=>{
+  isUserScrolled=false;
+  logArea.scrollTop=logArea.scrollHeight;
+  scrollHint.style.display='none';
+});
+
+let isDrag=false,dragY=0,dragScr=0;
+logArea.addEventListener('mousedown',e=>{
+  if(e.target.closest('.scroll-hint'))return;
+  isDrag=true;dragY=e.clientY;dragScr=logArea.scrollTop;
+  logArea.style.cursor='grabbing';e.preventDefault();
+});
+document.addEventListener('mousemove',e=>{if(!isDrag)return;logArea.scrollTop=dragScr-(e.clientY-dragY);});
+document.addEventListener('mouseup',()=>{if(isDrag){isDrag=false;logArea.style.cursor='';}});
+
+// ============================================================
+//  CONTROLS
+// ============================================================
+function updateSpeedLabel(){
+  const v=speedMap[speedSlider.value-1];
+  speedLabel.textContent=(v/1000).toFixed(1)+'s';
+}
+speedSlider.addEventListener('input',()=>{
+  currentSpeed=speedMap[speedSlider.value-1];
+  updateSpeedLabel();
+  if(isRunning&&!isPaused&&timer){clearTimeout(timer);timer=setTimeout(addNextLine,currentSpeed);}
+});
+updateSpeedLabel();
+
+fontSizeSlider.addEventListener('input',()=>{
+  const sz=fontSizeSlider.value+'px';
+  logArea.style.fontSize=sz;
+  fontSizeLabel.textContent=sz;
+});
+fontSelect.addEventListener('change',()=>{logArea.style.fontFamily=fontSelect.value;});
+lineHeightSel.addEventListener('change',()=>{logArea.style.lineHeight=lineHeightSel.value;});
+
+// ============================================================
+//  COLLAPSE
+// ============================================================
+document.getElementById('collapseBtn').addEventListener('click',()=>{
+  const lp=document.getElementById('leftPanel');
+  lp.style.display=lp.style.display==='none'?'':'none';
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+generateRandomInfra();
+buildTree();
+buildTasks();
+startStatusChanges();
+logArea.style.fontSize='13px';
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

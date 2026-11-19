@@ -1,0 +1,666 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageOS Appliance Manager</title>
+    <style>
+        :root {
+            /* 动态可配置配色 */
+            --bg-base: #0d1117;
+            --bg-surface: #161b22;
+            --bg-terminal: #05070a;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            
+            /* 语义状态色 */
+            --accent-blue: #2f81f7;
+            --accent-green: #238636;
+            --term-green: #3fb950;
+            --term-cyan: #58a6ff;
+            --term-yellow: #d29922;
+            --term-red: #f85149;
+            
+            --font-mono: 'Consolas', 'Fira Code', 'Monaco', 'Courier New', monospace;
+            --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* 顶部导航与配置栏 */
+        header {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .brand-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 设置控制器区域 */
+        .settings-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        select, input[type="color"] {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="color"] {
+            padding: 0;
+            width: 24px;
+            height: 22px;
+            border-radius: 3px;
+        }
+
+        /* 主容器 */
+        main {
+            flex: 1;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+
+        /* 硬件状态小挂件 */
+        .sys-info {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 16px;
+        }
+
+        /* 进度卡片 */
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .status-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .status-phase {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--term-cyan);
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            background-color: rgba(0, 0, 0, 0.3);
+            height: 16px;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-fill {
+            background: var(--accent-blue);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background-image: linear-gradient(
+                -45deg, 
+                rgba(255, 255, 255, 0.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                rgba(255, 255, 255, 0.15) 75%, 
+                transparent 75%, 
+                transparent
+            );
+            background-size: 24px 24px;
+            animation: moveStripes 1.5s linear infinite;
+        }
+
+        @keyframes moveStripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 24px 0; }
+        }
+
+        /* 终端容器 */
+        .terminal-container {
+            flex: 1;
+            background-color: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .terminal-body {
+            flex: 1;
+            padding: 12px 14px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-main);
+            scroll-behavior: smooth;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            margin-bottom: 2px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .log-time { color: var(--text-muted); }
+        .tag-info { color: var(--term-cyan); font-weight: bold; }
+        .tag-ok { color: var(--term-green); font-weight: bold; }
+        .tag-warn { color: var(--term-yellow); font-weight: bold; }
+
+        /* 操作区域 */
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        button {
+            padding: 8px 18px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-green);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-group">
+            <span>StorageOS Engine</span>
+            <span class="brand-badge">Node-A (Active)</span>
+        </div>
+
+        <div class="settings-bar">
+            <!-- 语言切换 -->
+            <div class="setting-item">
+                <label for="lang-select">🌐</label>
+                <select id="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="zh">简体中文</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <!-- 预设主题 -->
+            <div class="setting-item">
+                <label for="theme-preset">🎨</label>
+                <select id="theme-preset" onchange="applyPreset(this.value)">
+                    <option value="default">Default Dark</option>
+                    <option value="matrix">Matrix Hacker</option>
+                    <option value="amber">Retro Amber</option>
+                    <option value="solarized">Solarized Dark</option>
+                </select>
+            </div>
+
+            <!-- 背景颜色自定义 -->
+            <div class="setting-item">
+                <label for="custom-bg" title="Background">BG</label>
+                <input type="color" id="custom-bg" value="#0d1117" oninput="updateCustomColors()">
+            </div>
+
+            <!-- 文字颜色自定义 -->
+            <div class="setting-item">
+                <label for="custom-fg" title="Foreground">FG</label>
+                <input type="color" id="custom-fg" value="#c9d1d9" oninput="updateCustomColors()">
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="sys-info">
+            <span id="label-kernel">内核: 5.15.0-89-generic</span>
+            <span id="label-target">目标版本: v4.8.2-LTS</span>
+            <span>Link: 10GbE SFP+ [OK]</span>
+        </div>
+
+        <!-- 进度条面板 -->
+        <section class="card">
+            <div class="card-header">
+                <span class="status-title" id="ui-title">系统升级事务管理器</span>
+                <span id="status-phase" class="status-phase">IDLE</span>
+            </div>
+            
+            <div class="progress-meta">
+                <span id="current-task">READY</span>
+                <span id="percentage-label">0.0%</span>
+            </div>
+
+            <div class="progress-track">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </section>
+
+        <!-- 终端控制台 -->
+        <section class="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <span>/var/log/sysupgrade.log</span>
+                <span>TTY: pts/1</span>
+            </div>
+            <div id="terminal-body" class="terminal-body"></div>
+        </section>
+
+        <!-- 操作区 -->
+        <div class="controls">
+            <button id="start-btn" class="btn-primary" onclick="startUpgrade()">开始部署升级</button>
+        </div>
+    </main>
+
+    <script>
+        // 国际化文本字典
+        const i18n = {
+            zh: {
+                title: "系统升级事务管理器",
+                idle: "等待执行...",
+                ready: "就绪",
+                btnStart: "开始部署升级",
+                btnRunning: "升级进行中...",
+                btnDone: "升级已完成",
+                kernel: "内核: 5.15.0-89-generic",
+                target: "目标版本: v4.8.2-LTS",
+                initLog: "系统升级守护进程初始化完毕。等待信号。",
+                steps: [
+                    { p: 5,  phase: "环境预检", text: "正在挂载只读根目录镜像及完整性校验...", type: "info" },
+                    { p: 15, phase: "环境预检", text: "SHA-256 镜像校验成功: pass", type: "ok" },
+                    { p: 25, phase: "存储池检查", text: "验证 ZFS 存储池一致性 (pool: tank-zpool01)...", type: "info" },
+                    { p: 35, phase: "存储池检查", text: "存储池运行正常，暂停外部 I/O 调度队列。", type: "ok" },
+                    { p: 48, phase: "内核解包", text: "解包 linux-image-5.15.0-102-enterprise-storage...", type: "info" },
+                    { p: 60, phase: "微码烧录", text: "正在向 SAS HBA 适配器写入固件 (v16.05)...", type: "warn" },
+                    { p: 72, phase: "驱动重构", text: "运行 update-initramfs 重建引导环境...", type: "info" },
+                    { p: 85, phase: "集群同步", text: "同步节点配置参数至备用控制器 Node-B...", type: "info" },
+                    { p: 94, phase: "网络验证", text: "验证心跳链路与底层守护进程网络连接状态...", type: "ok" },
+                    { p: 100, phase: "升级完成", text: "系统已成功升级，需执行系统软重启使内核生效。", type: "ok" }
+                ]
+            },
+            en: {
+                title: "System Upgrade Transaction Manager",
+                idle: "Awaiting execution...",
+                ready: "Ready",
+                btnStart: "Deploy Upgrade",
+                btnRunning: "Upgrading...",
+                btnDone: "Upgrade Finished",
+                kernel: "Kernel: 5.15.0-89-generic",
+                target: "Target: v4.8.2-LTS",
+                initLog: "Upgrade daemon initialized. Waiting for trigger.",
+                steps: [
+                    { p: 5,  phase: "Pre-check", text: "Mounting read-only rootfs image & integrity checking...", type: "info" },
+                    { p: 15, phase: "Pre-check", text: "SHA-256 checksum matched: pass", type: "ok" },
+                    { p: 25, phase: "Storage Pool", text: "Validating ZFS pool integrity (tank-zpool01)...", type: "info" },
+                    { p: 35, phase: "Storage Pool", text: "Pool healthy. Suspended external I/O scheduler queues.", type: "ok" },
+                    { p: 48, phase: "Kernel Unpack", text: "Unpacking linux-image-5.15.0-102-enterprise-storage...", type: "info" },
+                    { p: 60, phase: "Firmware Flash", text: "Flashing SAS HBA adapter firmware (v16.05)...", type: "warn" },
+                    { p: 72, phase: "Rebuilding", text: "Executing update-initramfs to update boot environment...", type: "info" },
+                    { p: 85, phase: "Sync Node", text: "Synchronizing configuration tables with Node-B...", type: "info" },
+                    { p: 94, phase: "Validation", text: "Checking heartbeat interface and daemon states...", type: "ok" },
+                    { p: 100, phase: "Finished", text: "Upgrade successful. Soft reboot required to load kernel.", type: "ok" }
+                ]
+            },
+            de: {
+                title: "Systemaktualisierungs-Manager",
+                idle: "Warten auf Start...",
+                ready: "Bereit",
+                btnStart: "Aktualisierung starten",
+                btnRunning: "Aktualisierung läuft...",
+                btnDone: "Abgeschlossen",
+                kernel: "Kernel: 5.15.0-89-generic",
+                target: "Zielversion: v4.8.2-LTS",
+                initLog: "Upgrade-Daemon initialisiert. Warte auf Signal.",
+                steps: [
+                    { p: 5,  phase: "Prüfung", text: "Hänge RootFS-Image schreibgeschützt ein und prüfe...", type: "info" },
+                    { p: 15, phase: "Prüfung", text: "SHA-256 Prüfsumme übereinstimmend: pass", type: "ok" },
+                    { p: 25, phase: "Zpool Check", text: "Integritätsprüfung für ZFS-Pool (tank-zpool01)...", type: "info" },
+                    { p: 35, phase: "Zpool Check", text: "ZPool stabil. Externe I/O-Warteschlangen pausiert.", type: "ok" },
+                    { p: 48, phase: "Kernel Entpacken", text: "Entpacke linux-image-5.15.0-102-enterprise-storage...", type: "info" },
+                    { p: 60, phase: "Firmware Flash", text: "SAS HBA Firmware wird geflasht (v16.05)...", type: "warn" },
+                    { p: 72, phase: "Initramfs", text: "Führe update-initramfs für Boot-Umgebung aus...", type: "info" },
+                    { p: 85, phase: "Cluster Sync", text: "Konfiguration wird synchronisiert mit Node-B...", type: "info" },
+                    { p: 94, phase: "Validierung", text: "Prüfe Cluster-Heartbeat und Netzwerkstatus...", type: "ok" },
+                    { p: 100, phase: "Fertiggestellt", text: "Erfolgreich abgeschlossen. Warmstart erforderlich.", type: "ok" }
+                ]
+            },
+            es: {
+                title: "Gestor de Actualización del Sistema",
+                idle: "Esperando ejecución...",
+                ready: "Listo",
+                btnStart: "Iniciar Actualización",
+                btnRunning: "Actualizando...",
+                btnDone: "Actualización Finalizada",
+                kernel: "Kernel: 5.15.0-89-generic",
+                target: "Objetivo: v4.8.2-LTS",
+                initLog: "Demonio de actualización iniciado. En espera.",
+                steps: [
+                    { p: 5,  phase: "Verificación", text: "Montando imagen del sistema de archivos e integridad...", type: "info" },
+                    { p: 15, phase: "Verificación", text: "Checksum SHA-256 verificado: OK", type: "ok" },
+                    { p: 25, phase: "Grupo Storage", text: "Comprobando integridad de pool ZFS (tank-zpool01)...", type: "info" },
+                    { p: 35, phase: "Grupo Storage", text: "Pool saludable. Colas de E/S pausadas con éxito.", type: "ok" },
+                    { p: 48, phase: "Kernel", text: "Desempaquetando linux-image-5.15.0-102-enterprise...", type: "info" },
+                    { p: 60, phase: "Firmware Flash", text: "Flasheando firmware del adaptador SAS HBA (v16.05)...", type: "warn" },
+                    { p: 72, phase: "Initramfs", text: "Ejecutando update-initramfs para entorno de arranque...", type: "info" },
+                    { p: 85, phase: "Sincronización", text: "Sincronizando tablas de configuración con Nodo-B...", type: "info" },
+                    { p: 94, phase: "Validación Red", text: "Verificando interfaces de latido (heartbeat)...", type: "ok" },
+                    { p: 100, phase: "Completado", text: "Proceso completado. Se requiere un reinicio suave.", type: "ok" }
+                ]
+            },
+            fr: {
+                title: "Gestionnaire de Mise à Niveau du Système",
+                idle: "En attente...",
+                ready: "Prêt",
+                btnStart: "Lancer la mise à niveau",
+                btnRunning: "Mise à niveau en cours...",
+                btnDone: "Terminé",
+                kernel: "Noyau: 5.15.0-89-generic",
+                target: "Cible: v4.8.2-LTS",
+                initLog: "Démon de mise à jour initialisé. Prêt.",
+                steps: [
+                    { p: 5,  phase: "Contrôle", text: "Montage de l'image racine et contrôle d'intégrité...", type: "info" },
+                    { p: 15, phase: "Contrôle", text: "Somme de contrôle SHA-256 validée: succès", type: "ok" },
+                    { p: 25, phase: "Pool ZFS", text: "Vérification du pool ZFS (tank-zpool01)...", type: "info" },
+                    { p: 35, phase: "Pool ZFS", text: "Pool sain. Suspension des files d'attente E/S.", type: "ok" },
+                    { p: 48, phase: "Noyau", text: "Décompression de linux-image-5.15.0-102-enterprise...", type: "info" },
+                    { p: 60, phase: "Flash Microcode", text: "Mise à jour du firmware contrôleur SAS HBA (v16.05)...", type: "warn" },
+                    { p: 72, phase: "Initramfs", text: "Exécution de update-initramfs pour démarrage...", type: "info" },
+                    { p: 85, phase: "Synchronisation", text: "Synchronisation des paramètres avec Node-B...", type: "info" },
+                    { p: 94, phase: "Validation", text: "Vérification de la connectivité et des démons réseau...", type: "ok" },
+                    { p: 100, phase: "Terminé", text: "Mise à niveau terminée. Redémarrage logiciel requis.", type: "ok" }
+                ]
+            }
+        };
+
+        let currentLang = 'zh';
+        let isRunning = false;
+        let isDone = false;
+
+        // 初始化
+        function init() {
+            changeLanguage('zh');
+        }
+
+        // 语言切换
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+            
+            document.getElementById("ui-title").textContent = t.title;
+            document.getElementById("label-kernel").textContent = t.kernel;
+            document.getElementById("label-target").textContent = t.target;
+
+            const btn = document.getElementById("start-btn");
+            if (isDone) {
+                btn.textContent = t.btnDone;
+            } else if (isRunning) {
+                btn.textContent = t.btnRunning;
+            } else {
+                btn.textContent = t.btnStart;
+                document.getElementById("status-phase").textContent = t.idle;
+                document.getElementById("current-task").textContent = t.ready;
+                // 初始化首行日志
+                const terminal = document.getElementById("terminal-body");
+                if(terminal.children.length === 0) {
+                    appendLog(t.initLog, "info");
+                }
+            }
+        }
+
+        // 主题预设配置
+        const presets = {
+            default: { bg: '#0d1117', surface: '#161b22', term: '#05070a', fg: '#c9d1d9', border: '#30363d', accent: '#2f81f7' },
+            matrix: { bg: '#000000', surface: '#0d110d', term: '#050a05', fg: '#00ff66', border: '#003b00', accent: '#00aa44' },
+            amber: { bg: '#120d02', surface: '#1c1404', term: '#0d0901', fg: '#ffb000', border: '#3d2800', accent: '#d98e04' },
+            solarized: { bg: '#002b36', surface: '#073642', term: '#00212b', fg: '#93a1a1', border: '#586e75', accent: '#268bd2' }
+        };
+
+        function applyPreset(name) {
+            const p = presets[name];
+            if (!p) return;
+
+            document.documentElement.style.setProperty('--bg-base', p.bg);
+            document.documentElement.style.setProperty('--bg-surface', p.surface);
+            document.documentElement.style.setProperty('--bg-terminal', p.term);
+            document.documentElement.style.setProperty('--text-main', p.fg);
+            document.documentElement.style.setProperty('--border-color', p.border);
+            document.documentElement.style.setProperty('--accent-blue', p.accent);
+
+            // 同步颜色选择器指示
+            document.getElementById('custom-bg').value = p.bg;
+            document.getElementById('custom-fg').value = p.fg;
+        }
+
+        // 自定义颜色选择器
+        function updateCustomColors() {
+            const bg = document.getElementById('custom-bg').value;
+            const fg = document.getElementById('custom-fg').value;
+
+            document.documentElement.style.setProperty('--bg-base', bg);
+            document.documentElement.style.setProperty('--bg-terminal', bg);
+            document.documentElement.style.setProperty('--text-main', fg);
+        }
+
+        function getTimestamp() {
+            const now = new Date();
+            return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+        }
+
+        function appendLog(text, type = "info") {
+            const terminal = document.getElementById("terminal-body");
+            const entry = document.createElement("div");
+            entry.className = "log-entry";
+
+            let tag = "tag-info";
+            let label = "[INFO]";
+            if (type === "ok") { tag = "tag-ok"; label = "[OK]"; }
+            if (type === "warn") { tag = "tag-warn"; label = "[WARN]"; }
+
+            entry.innerHTML = `<span class="log-time">${getTimestamp()}</span> <span class="${tag}">${label}</span> ${text}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function startUpgrade() {
+            if (isRunning || isDone) return;
+            isRunning = true;
+
+            const btn = document.getElementById("start-btn");
+            btn.disabled = true;
+            btn.textContent = i18n[currentLang].btnRunning;
+
+            const progressBar = document.getElementById("progress-fill");
+            const percentLabel = document.getElementById("percentage-label");
+            const phaseLabel = document.getElementById("status-phase");
+            const taskLabel = document.getElementById("current-task");
+
+            const steps = i18n[currentLang].steps;
+
+            for (let i = 0; i < steps.length; i++) {
+                // 动态获取当前选定语言的对应节点信息，确保升级中途切换语言也能正常显示
+                const currentSteps = i18n[currentLang].steps;
+                const step = currentSteps[i];
+
+                const delay = Math.floor(Math.random() * 1000) + 700;
+                await new Promise(res => setTimeout(res, delay));
+
+                // 更新界面
+                progressBar.style.width = step.p + "%";
+                percentLabel.textContent = step.p.toFixed(1) + "%";
+                phaseLabel.textContent = step.phase;
+                taskLabel.textContent = step.text;
+                
+                // 输出日志
+                appendLog(step.text, step.type);
+            }
+
+            isRunning = false;
+            isDone = true;
+            btn.textContent = i18n[currentLang].btnDone;
+            phaseLabel.style.color = "var(--term-green)";
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

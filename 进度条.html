@@ -1,0 +1,215 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统正在全力推进中...</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Courier New", monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 480px;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid #334155;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+        .title { font-size: 1.1rem; font-weight: 600; color: #f8fafc; }
+        .percent { font-size: 1.3rem; font-weight: bold; color: #38bdf8; font-variant-numeric: tabular-nums; }
+
+        /* 进度条轨道 */
+        .bar-track {
+            width: 100%;
+            height: 12px;
+            background-color: #0f172a;
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            border-radius: 999px;
+            transition: width 0.3s ease-out;
+        }
+
+        .status-box {
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .task { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .eta { color: #64748b; font-size: 0.75rem; }
+
+        .btn-group {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        button {
+            padding: 8px 18px;
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        button:hover {
+            color: #f8fafc;
+            border-color: #94a3b8;
+            background: rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <span class="title" id="titleText">正在部署终极人生方案...</span>
+            <span class="percent" id="percentText">0%</span>
+        </div>
+
+        <div class="bar-track">
+            <div class="bar-fill" id="barFill"></div>
+        </div>
+
+        <div class="status-box">
+            <div class="task" id="taskText">正在初始化...</div>
+            <div class="eta" id="etaText">预计剩余时间: 计算中...</div>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="cancel()">取消操作</button>
+        </div>
+    </div>
+
+    <script>
+        const barFill = document.getElementById('barFill');
+        const percentText = document.getElementById('percentText');
+        const taskText = document.getElementById('taskText');
+        const etaText = document.getElementById('etaText');
+        const titleText = document.getElementById('titleText');
+
+        let currentPercent = 0;
+        let decimals = 0; // 小数位数
+        let step = 0;
+
+        const tasks = [
+            "正在加载底层逻辑...",
+            "正在对齐颗粒度...",
+            "正在重组量子叙事...",
+            "正在等待跨部门会签...",
+            "正在向神明提交可行性报告...",
+            "正在处理剩余的 1%...",
+            "正在重新定义 100% 的内涵...",
+            "正在压缩时间与空间...",
+            "正在反省为什么还没好...",
+            "快了，真的快了...",
+            "胜利就在眼前（大概）..."
+        ];
+
+        const etas = [
+            "预计剩余时间: 3 秒",
+            "预计剩余时间: 48 分钟",
+            "预计剩余时间: 6 个月",
+            "预计剩余时间: 约 14 亿年",
+            "预计剩余时间: 宇宙热寂之前",
+            "预计剩余时间: 下辈子"
+        ];
+
+        function advance() {
+            step++;
+
+            if (currentPercent < 90) {
+                // 前期猛冲，给你虚假的希望
+                currentPercent += Math.random() * 15 + 5;
+                if (currentPercent > 90) currentPercent = 90;
+                percentText.innerText = Math.floor(currentPercent) + '%';
+                barFill.style.width = currentPercent + '%';
+            } else {
+                // 芝诺悖论阶段：每次把距离 100% 的缺口砍掉一半，并增加小数位
+                decimals = Math.min(decimals + 1, 8);
+                const gap = 100 - currentPercent;
+                currentPercent += gap * 0.4;
+                
+                // 渲染极其精细且绝望的小数点
+                percentText.innerText = currentPercent.toFixed(decimals) + '%';
+                barFill.style.width = '99.2%'; // 视觉上死死卡在终点线前
+            }
+
+            // 随机更新废话日志
+            taskText.innerText = tasks[Math.floor(Math.random() * tasks.length)];
+            if (step % 2 === 0) {
+                etaText.innerText = etas[Math.floor(Math.random() * etas.length)];
+            }
+
+            // 步长逐渐变慢，折磨加剧
+            const nextDelay = currentPercent < 90 ? 400 : Math.random() * 1000 + 800;
+            setTimeout(advance, nextDelay);
+        }
+
+        // 绝望的取消按钮
+        function cancel() {
+            titleText.innerText = "正在撤销操作...";
+            currentPercent = 0;
+            decimals = 0;
+            taskText.innerText = "正在取消刚刚的无用功，并准备重新开始无用功...";
+            etaText.innerText = "预计剩余时间: 永久";
+            percentText.innerText = "0%";
+            barFill.style.width = "0%";
+        }
+
+        // 启动
+        setTimeout(advance, 500);
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

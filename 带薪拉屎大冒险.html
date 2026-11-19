@@ -1,0 +1,1564 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>带薪拉屎大冒险：写字楼RPG 2.0</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --bg: #090e17;
+            --card-bg: #131d2e;
+            --card-inner: #0b1320;
+            --border: #223249;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif; user-select: none; }
+        body { background: var(--bg); color: var(--text); padding: 12px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 1040px; display: flex; flex-direction: column; gap: 10px; }
+
+        header {
+            padding: 10px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { color: #38bdf8; font-size: 1.3rem; }
+
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--card-bg);
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
+        .view-section { display: none; flex-direction: column; gap: 10px; }
+        .view-section.active { display: flex; }
+
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .hud-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .hud-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
+        .hud-val { font-size: 1.35rem; font-weight: 800; font-family: monospace; }
+        .progress-bar { width: 100%; height: 6px; background: #223249; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; transition: width 0.15s linear; }
+
+        .game-viewport-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+        }
+
+        .master-control-bar {
+            width: 100%;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-start:hover:not(:disabled) { background: #059669; transform: scale(1.02); }
+        .btn-start.running {
+            background: var(--warning);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        button.btn-danger {
+            background: #b91c1c;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button.btn-danger:hover:not(:disabled) { background: #dc2626; }
+
+        canvas#officeCanvas {
+            background: #0f172a;
+            border-radius: 6px;
+            border: 2px solid #334155;
+            display: block;
+            width: 100%;
+            max-width: 1000px;
+            height: auto;
+            aspect-ratio: 1000 / 360;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        }
+
+        .controls-hint {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-inner);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .key-badge {
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .btn-sub {
+            background: #1e293b;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .btn-sub:hover { background: #334155; }
+
+        .log-box {
+            height: 110px;
+            background: #040810;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-y: auto;
+            color: #cbd5e1;
+        }
+        .log-item { margin-bottom: 2px; }
+
+        /* 配置表单 */
+        .menu-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .form-group input, .form-group select {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        /* 蒙特卡洛看板 */
+        .batch-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .batch-progress-card {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .batch-progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .batch-progress-track {
+            width: 100%;
+            height: 14px;
+            background: #1e293b;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .batch-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.08s ease-out;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .stat-card {
+            background: #0b1320;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-card .num { font-size: 1.4rem; font-weight: bold; margin-top: 4px; }
+
+        .histogram-box {
+            background: #050b14;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .hist-row { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; }
+        .hist-label { width: 85px; color: var(--text-muted); text-align: right; }
+        .hist-track { flex: 1; height: 16px; background: #1e293b; border-radius: 4px; overflow: hidden; }
+        .hist-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #3b82f6); }
+        .hist-cnt { width: 105px; color: var(--text-muted); }
+
+        /* 模态框 */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 16px;
+        }
+        .modal-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .floor-select-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+        .floor-btn {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .floor-btn:hover { background: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏢 带薪拉屎大冒险：写字楼RPG 2.0</h1>
+        <div style="font-size: 0.8rem; color: #38bdf8;">写字楼摸鱼宇宙 · 自定义参数增强版</div>
+    </header>
+
+    <!-- 模式选项卡 -->
+    <div class="mode-tabs">
+        <button id="tabBtnManual" class="tab-btn" onclick="switchGameMode('manual')">🕹️ 键盘手操摸鱼模式</button>
+        <button id="tabBtnSim" class="tab-btn active" onclick="switchGameMode('sim')">🤖 AI自主推演模式 (智能避障)</button>
+        <button id="tabBtnBatch" class="tab-btn" onclick="switchGameMode('batch')">🔬 8万大厂客流推演看板</button>
+        <button id="tabBtnConfig" class="tab-btn" onclick="openConfigView()">⚙️ 大厦参数配置</button>
+    </div>
+
+    <!-- 视图 1：主舞台 -->
+    <div id="viewMainStage" class="view-section active">
+        <div class="hud">
+            <div class="hud-card">
+                <div class="hud-label">括约肌极限倒计时</div>
+                <div id="valSphincter" class="hud-val" style="color: #f87171;">03:00.0</div>
+                <div class="progress-bar"><div id="barSphincter" class="progress-fill" style="width: 100%; background: var(--danger);"></div></div>
+            </div>
+
+            <div class="hud-card">
+                <div class="hud-label">打工人当前所在</div>
+                <div id="valFloor" class="hud-val" style="color: #38bdf8;">16 层 (工位)</div>
+                <div id="valFloorDesc" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">独立洗手间 · 垂直电梯群</div>
+            </div>
+
+            <div class="hud-card">
+                <div class="hud-label">体能储备 (冲刺消耗)</div>
+                <div id="valStamina" class="hud-val" style="color: #facc15;">100%</div>
+                <div class="progress-bar"><div id="barStamina" class="progress-fill" style="width: 100%; background: #facc15;"></div></div>
+            </div>
+
+            <div class="hud-card">
+                <div class="hud-label">运行状态 / 带薪秒薪</div>
+                <div id="valModeStatus" class="hud-val" style="font-size: 1.1rem; padding-top:4px; color:#facc15;">⏸️ 等待开始</div>
+                <div id="valSalary" style="font-size:0.7rem; color:#34d399; margin-top:2px;">已薅羊毛: ￥ 0.00</div>
+            </div>
+        </div>
+
+        <div class="game-viewport-card">
+            <!-- 常驻控制条 -->
+            <div class="master-control-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button id="btnMainStart" class="btn-start" onclick="toggleEngineRun()">
+                        <span id="btnMainIcon">▶️</span> <span id="btnMainText">开始推演</span>
+                    </button>
+                    <button class="btn-sub" onclick="resetCurrentGame()">🔄 重置本层</button>
+                    <button class="btn-sub" style="color:#f87171;" onclick="giveUpGame()">🏳️ 放弃</button>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
+                    <label id="speedLabelText" style="color:var(--text-muted);">AI推演流速：</label>
+                    <select id="simSpeedSelect" onchange="updateSimSpeed()" style="background:#0f172a; color:white; border:1px solid var(--border); padding:6px 8px; border-radius:6px;">
+                        <option value="1">1x 真实速度</option>
+                        <option value="2">2x 倍速</option>
+                        <option value="4" selected>4x 高速</option>
+                        <option value="8">8x 极速</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Canvas 视窗 -->
+            <canvas id="officeCanvas" width="1000" height="360"></canvas>
+
+            <div id="manualControlsHint" class="controls-hint" style="display:none;">
+                <div>🎮 移动：<span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span></div>
+                <div>⚡ 提肛暴走：按住 <span class="key-badge">Shift</span> 或 <span class="key-badge">Space</span></div>
+                <div>🚪 换层/推门：走近电梯、楼梯或马桶按 <span class="key-badge">E</span></div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-sub" style="padding:2px 8px;" onclick="triggerKeyAction('Space')">提肛冲刺</button>
+                    <button class="btn-sub" style="padding:2px 8px;" onclick="triggerKeyAction('KeyE')">互动[E]</button>
+                </div>
+            </div>
+
+            <div id="simControlsHint" class="controls-hint" style="display:flex; color:#38bdf8;">
+                🤖 【智能寻坑 Agent 就绪】：小人装载人工势场动力学雷达，本层全满时会自动走向电梯厅或楼梯间换层！
+            </div>
+        </div>
+
+        <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:10px;">
+            <div style="font-size:0.85rem; font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between;">
+                <span>打工人摸鱼行动日志</span>
+                <span id="speedIndicator" style="color:#38bdf8;">月薪计算中</span>
+            </div>
+            <div class="log-box" id="rpgLogBox"></div>
+        </div>
+    </div>
+
+    <!-- 视图 2：大厦参数配置 -->
+    <div id="viewConfigStage" class="view-section">
+        <div class="menu-card">
+            <h2 style="font-size: 1.2rem; color: #38bdf8;">⚙️ 写字楼环境与打工人参数自定义</h2>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label>括约肌极限忍耐时间 (30 ~ 600秒):</label>
+                    <input type="number" id="cfgMaxTime" value="180" min="30" max="600" step="10">
+                </div>
+                <div class="form-group">
+                    <label>写字楼总楼层数 (5 ~ 50层):</label>
+                    <input type="number" id="cfgTotalFloors" value="30" min="5" max="50" onchange="syncOfficeFloorOptions()">
+                </div>
+                <div class="form-group">
+                    <label>初始工位所在楼层:</label>
+                    <select id="cfgStartFloor">
+                        <!-- 动态联动填充 -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>每层卫生间坑位数量 (1 ~ 10个):</label>
+                    <input type="number" id="cfgStallsPerFloor" value="5" min="1" max="10">
+                </div>
+                <div class="form-group">
+                    <label>配备直梯部数 (1 ~ 6部):</label>
+                    <input type="number" id="cfgElevators" value="4" min="1" max="6">
+                </div>
+                <div class="form-group">
+                    <label>打工人月薪估值 (元，折合秒薪):</label>
+                    <input type="number" id="cfgSalary" value="20000" min="3000" max="200000" step="1000">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:6px;">
+                <button class="btn-start" onclick="applyConfigAndPlay()">💾 保存配置并开局</button>
+                <button class="btn-sub" onclick="switchGameMode('manual')">取消返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视图 3：8万大厂客流推演看板 -->
+    <div id="viewBatchStage" class="view-section">
+        <div class="batch-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                <h2 style="font-size:1.15rem; color:#38bdf8;">🔬 80,000 级大厂写字楼带薪拉屎大数推演</h2>
+                <span style="font-size:0.75rem; color:var(--text-muted);">异步分片多核高并发推演引擎</span>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:0.85rem; font-weight:bold;">推演员工基数：</label>
+                <select id="batchSimCount" style="background:#0f172a; color:white; border:1px solid var(--border); padding:8px 12px; border-radius:6px;">
+                    <option value="1000">1,000 位员工 (部门排查)</option>
+                    <option value="5000">5,000 位员工 (整栋办公楼)</option>
+                    <option value="10000">10,000 位员工 (大厂园区)</option>
+                    <option value="50000">50,000 位员工 (超高强度样本)</option>
+                    <option value="80000" selected>80,000 位员工 (理论极限样本)</option>
+                </select>
+
+                <button id="btnStartBatch" class="btn-start" style="padding:8px 20px; font-size:0.9rem;" onclick="runBatchSim()">⚡ 启动快速运算</button>
+                <button id="btnStopBatch" class="btn-danger" onclick="stopBatchSim()" disabled>⏹️ 终止推演</button>
+            </div>
+
+            <div class="batch-progress-card">
+                <div class="batch-progress-header">
+                    <span id="batchProgressLabel" style="color: var(--text-muted);">推演状态：待命中</span>
+                    <span id="batchProgressNumbers" style="color: #38bdf8;">0 / 0 (0%)</span>
+                </div>
+                <div class="batch-progress-track">
+                    <div id="batchProgressBar" class="batch-progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card"><div class="hud-label">总测试员工数</div><div id="simStatTotal" class="num" style="color: #38bdf8;">--</div></div>
+                <div class="stat-card"><div class="hud-label">成功带薪解脱</div><div id="simStatSuccess" class="num" style="color: var(--success);">--</div></div>
+                <div class="stat-card"><div class="hud-label">彻底社死人数</div><div id="simStatFail" class="num" style="color: var(--danger);">--</div></div>
+                <div class="stat-card"><div class="hud-label">解脱成功率</div><div id="simStatRate" class="num" style="color: #facc15;">--%</div></div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card"><div class="hud-label">平均耗时 (秒)</div><div id="simStatMean" class="num">--</div></div>
+                <div class="stat-card"><div class="hud-label">中位数耗时 (秒)</div><div id="simStatMedian" class="num">--</div></div>
+                <div class="stat-card"><div class="hud-label">爬楼梯换层比率</div><div id="simStatStairRate" class="num">--%</div></div>
+                <div class="stat-card"><div class="hud-label">平均薅得羊毛</div><div id="simStatSalaryAvg" class="num" style="color:#facc15;">￥ --</div></div>
+            </div>
+
+            <div>
+                <div style="font-size:0.85rem; font-weight:bold; margin-bottom:8px; color:var(--text-muted);">
+                    📊 员工成功带薪如厕用时频数分布直方图
+                </div>
+                <div id="simHistBox" class="histogram-box">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">点击上方按钮开始推演以生成分布直方图</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 电梯选层专用交互弹窗 -->
+<div id="modalElevator" class="modal">
+    <div class="modal-card">
+        <h3 id="elevModalTitle" style="color:#38bdf8;">🛗 已进入电梯轿厢</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted);">请点击你想前往的楼层：</p>
+        <div id="elevFloorBtns" class="floor-select-grid"></div>
+        <button class="btn-sub" onclick="closeElevModal()">放弃乘坐</button>
+    </div>
+</div>
+
+<!-- 结局弹窗 -->
+<div id="modalResult" class="modal">
+    <div class="modal-card">
+        <h2 id="resTitle" style="font-size: 1.5rem;">🎉 完美解脱！</h2>
+        <div id="resIcon" style="font-size: 3rem;">🚽</div>
+        <p id="resDesc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;">
+            <button class="btn-start" onclick="resetCurrentGame()">再来一次</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ==========================================================================
+       1. 配置参数与数据定义
+       ========================================================================== */
+    let OFFICE_CONFIG = {
+        maxTime: 180,
+        totalFloors: 30,
+        startFloor: 16,
+        stallsPerFloor: 5,
+        elevatorCount: 4,
+        monthlySalary: 20000,
+        salaryPerSec: 20000 / (21.75 * 8 * 3600)
+    };
+
+    let GAME = {
+        mode: 'sim',
+        isRunning: false,
+        timeLeft: 180,
+        stamina: 100,
+        currentFloor: 16,
+        officeFloor: 16,
+        earnedMoney: 0,
+        simSpeed: 4,
+        keys: {},
+        player: { 
+            x: 200, 
+            y: 200, 
+            speed: 3.2, 
+            facing: 'right', 
+            legPhase: 0,
+            lastX: 200, 
+            lastY: 200, 
+            stuckFrames: 0, 
+            avoidDir: 1 
+        },
+        floorsData: {},
+        desks: [],
+        stalls: [],
+        elevators: [],
+        stairs: { x: 40, y: 140, w: 50, h: 80 },
+        boss: { x: 450, y: 180, dir: 1, range: [360, 680], alertDist: 85 },
+        screenShake: 0,
+        nearElevator: null
+    };
+
+    let canvas, ctx;
+    let lastTick = performance.now();
+
+    function syncOfficeFloorOptions() {
+        const total = Math.min(50, Math.max(5, parseInt(document.getElementById('cfgTotalFloors').value) || 30));
+        const select = document.getElementById('cfgStartFloor');
+        const prev = select.value;
+        select.innerHTML = '<option value="random">🎲 随机楼层</option>';
+
+        for (let i = 2; i <= total; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = `${i} 层 (工位)`;
+            select.appendChild(opt);
+        }
+
+        if (select.querySelector(`option[value="${prev}"]`)) select.value = prev;
+        else select.value = "random";
+    }
+
+    function openConfigView() {
+        GAME.isRunning = false;
+        updateStartButtonUI();
+        showView('viewConfigStage');
+        document.querySelectorAll('.mode-tabs button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tabBtnConfig').classList.add('active');
+    }
+
+    function applyConfigAndPlay() {
+        OFFICE_CONFIG.maxTime = Math.max(30, parseInt(document.getElementById('cfgMaxTime').value) || 180);
+        OFFICE_CONFIG.totalFloors = Math.min(50, Math.max(5, parseInt(document.getElementById('cfgTotalFloors').value) || 30));
+        OFFICE_CONFIG.stallsPerFloor = Math.min(10, Math.max(1, parseInt(document.getElementById('cfgStallsPerFloor').value) || 5));
+        OFFICE_CONFIG.elevatorCount = Math.min(6, Math.max(1, parseInt(document.getElementById('cfgElevators').value) || 4));
+        OFFICE_CONFIG.monthlySalary = Math.max(3000, parseInt(document.getElementById('cfgSalary').value) || 20000);
+        OFFICE_CONFIG.salaryPerSec = OFFICE_CONFIG.monthlySalary / (21.75 * 8 * 3600);
+
+        const sf = document.getElementById('cfgStartFloor').value;
+        if (sf === 'random') {
+            OFFICE_CONFIG.startFloor = Math.floor(Math.random() * (OFFICE_CONFIG.totalFloors - 1)) + 2;
+        } else {
+            OFFICE_CONFIG.startFloor = parseInt(sf) || 2;
+        }
+
+        switchGameMode('manual');
+    }
+
+    /* ==========================================================================
+       2. 模式与视图控制
+       ========================================================================== */
+    function switchGameMode(mode) {
+        GAME.isRunning = false;
+        updateStartButtonUI();
+
+        document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
+        document.getElementById('tabBtnSim').classList.toggle('active', mode === 'sim');
+        document.getElementById('tabBtnBatch').classList.toggle('active', mode === 'batch');
+        document.getElementById('tabBtnConfig').classList.remove('active');
+
+        if (mode === 'batch') {
+            document.getElementById('viewMainStage').classList.remove('active');
+            document.getElementById('viewConfigStage').classList.remove('active');
+            document.getElementById('viewBatchStage').classList.add('active');
+            return;
+        }
+
+        document.getElementById('viewConfigStage').classList.remove('active');
+        document.getElementById('viewBatchStage').classList.remove('active');
+        document.getElementById('viewMainStage').classList.add('active');
+
+        GAME.mode = mode;
+        if (mode === 'manual') {
+            document.getElementById('manualControlsHint').style.display = 'flex';
+            document.getElementById('simControlsHint').style.display = 'none';
+            document.getElementById('speedLabelText').innerText = "游戏流速：";
+        } else {
+            document.getElementById('manualControlsHint').style.display = 'none';
+            document.getElementById('simControlsHint').style.display = 'flex';
+            document.getElementById('speedLabelText').innerText = "AI推演流速：";
+        }
+
+        resetCurrentGame();
+    }
+
+    function showView(id) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('modalResult').style.display = 'none';
+        document.getElementById('modalElevator').style.display = 'none';
+    }
+
+    function initBuildingData() {
+        GAME.floorsData = {};
+        for (let f = 1; f <= OFFICE_CONFIG.totalFloors; f++) {
+            if (f === 1) {
+                GAME.floorsData[f] = null;
+                continue;
+            }
+            const stalls = [];
+            for (let i = 1; i <= OFFICE_CONFIG.stallsPerFloor; i++) {
+                stalls.push({ id: i, occupied: Math.random() < 0.76 });
+            }
+            GAME.floorsData[f] = { stalls: stalls };
+        }
+    }
+
+    function resetCurrentGame() {
+        document.getElementById('modalResult').style.display = 'none';
+        document.getElementById('modalElevator').style.display = 'none';
+
+        GAME.isRunning = false;
+        GAME.timeLeft = OFFICE_CONFIG.maxTime;
+        GAME.stamina = 100;
+        GAME.earnedMoney = 0;
+        GAME.currentFloor = OFFICE_CONFIG.startFloor;
+        GAME.officeFloor = OFFICE_CONFIG.startFloor;
+
+        initBuildingData();
+
+        GAME.player.x = 220;
+        GAME.player.y = 200;
+        GAME.player.lastX = 220;
+        GAME.player.lastY = 200;
+        GAME.player.stuckFrames = 0;
+        GAME.player.facing = 'right';
+
+        clearLogs();
+        addLog(`🏢 场景就绪：工位在【${GAME.currentFloor} 层】。点击绿色按钮启动！`);
+
+        initFloorScene(GAME.currentFloor);
+        updateStartButtonUI();
+        updateHUD();
+        renderScene();
+    }
+
+    function toggleEngineRun() {
+        if (!GAME.isRunning) {
+            GAME.isRunning = true;
+            lastTick = performance.now();
+            addLog(GAME.mode === 'manual' 
+                ? "▶️ 【手操开始】倒计时启动！WASD 控制小人走位，靠近电梯/楼梯/马桶按 E 互动！" 
+                : "▶️ 【AI自主推演开始】智能避障雷达已上线，正在计算无碰撞路径智能寻坑！");
+        } else {
+            GAME.isRunning = false;
+            addLog("⏸️ 【已暂停】时间与物理运动已定格。");
+        }
+        updateStartButtonUI();
+    }
+
+    function updateStartButtonUI() {
+        const btn = document.getElementById('btnMainStart');
+        const icon = document.getElementById('btnMainIcon');
+        const text = document.getElementById('btnMainText');
+        const statusVal = document.getElementById('valModeStatus');
+
+        if (!GAME.isRunning) {
+            btn.className = "btn-start";
+            icon.innerText = "▶️";
+            text.innerText = (GAME.mode === 'manual') ? "开始摸鱼" : "开始推演";
+            statusVal.innerText = "⏸️ 等待开始";
+            statusVal.style.color = "#facc15";
+        } else {
+            btn.className = "btn-start running";
+            icon.innerText = "⏸️";
+            text.innerText = "暂停";
+            statusVal.innerText = (GAME.mode === 'manual') ? "手操摸鱼中" : "AI推演中";
+            statusVal.style.color = "var(--success)";
+        }
+    }
+
+    function updateSimSpeed() {
+        GAME.simSpeed = parseFloat(document.getElementById('simSpeedSelect').value) || 1;
+    }
+
+    function giveUpGame() {
+        finishGame(false, "你放弃了挣扎，靠在过道隔板上迎来了难忘的社死。");
+    }
+
+    /* ==========================================================================
+       3. 场景渲染与电梯布局重建
+       ========================================================================== */
+    function initFloorScene(floorNum) {
+        GAME.currentFloor = floorNum;
+        GAME.desks = [];
+        GAME.stalls = [];
+        GAME.elevators = [];
+        GAME.nearElevator = null;
+
+        // 办公桌
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 2; col++) {
+                GAME.desks.push({
+                    x: 130 + col * 110,
+                    y: 70 + row * 95,
+                    w: 80,
+                    h: 45
+                });
+            }
+        }
+
+        // 电梯部数动态生成 (1 ~ 6 部均匀铺设)
+        const elevCount = OFFICE_CONFIG.elevatorCount;
+        const startX = 390;
+        const spacing = Math.min(75, 340 / Math.max(1, elevCount));
+        for (let e = 0; e < elevCount; e++) {
+            GAME.elevators.push({
+                id: e + 1,
+                x: startX + e * spacing,
+                y: 35,
+                w: 52,
+                h: 55,
+                isFree: Math.random() < 0.90
+            });
+        }
+
+        // 卫生间坑位动态生成
+        if (floorNum !== 1) {
+            const data = GAME.floorsData[floorNum] || { stalls: [] };
+            const count = data.stalls.length;
+            const stallH = Math.min(50, 260 / count);
+            for (let s = 0; s < count; s++) {
+                const st = data.stalls[s] || { id: s + 1, occupied: false };
+                GAME.stalls.push({
+                    id: s + 1,
+                    x: 875,
+                    y: 45 + s * (stallH + 6),
+                    w: 70,
+                    h: stallH,
+                    occupied: st.occupied
+                });
+            }
+        }
+
+        GAME.boss.x = 480;
+        GAME.boss.dir = 1;
+
+        updateHUD();
+    }
+
+    /* ==========================================================================
+       4. 物理循环与手操碰撞
+       ========================================================================== */
+    function masterLoop(now) {
+        const rawDt = Math.min(0.1, (now - lastTick) / 1000);
+        lastTick = now;
+
+        if (GAME.isRunning) {
+            const effectiveDt = (GAME.mode === 'sim') ? rawDt * GAME.simSpeed : rawDt;
+            updatePhysics(effectiveDt);
+        }
+
+        renderScene();
+        requestAnimationFrame(masterLoop);
+    }
+
+    function updatePhysics(dt) {
+        const isSprinting = (GAME.mode === 'manual') 
+            ? ((GAME.keys['ShiftLeft'] || GAME.keys['ShiftRight'] || GAME.keys['Space']) && GAME.stamina > 10)
+            : (GAME.stamina > 25);
+
+        const drain = isSprinting ? dt * 1.45 : dt;
+        GAME.timeLeft -= drain;
+        GAME.earnedMoney += OFFICE_CONFIG.salaryPerSec * dt;
+
+        if (GAME.timeLeft <= 0) {
+            GAME.timeLeft = 0;
+            updateHUD();
+            finishGame(false, "括约肌彻底崩溃！你在走廊里留下了无法磨灭的传说……");
+            return;
+        }
+
+        if (isSprinting) {
+            GAME.stamina = Math.max(0, GAME.stamina - dt * 28);
+            GAME.player.speed = 5.2;
+            GAME.screenShake = 1.0;
+        } else {
+            GAME.stamina = Math.min(100, GAME.stamina + dt * 16);
+            GAME.player.speed = 3.2;
+            GAME.screenShake = 0;
+        }
+
+        let mx = 0, my = 0;
+        if (GAME.mode === 'manual') {
+            if (GAME.keys['KeyW'] || GAME.keys['ArrowUp']) my -= 1;
+            if (GAME.keys['KeyS'] || GAME.keys['ArrowDown']) my += 1;
+            if (GAME.keys['KeyA'] || GAME.keys['ArrowLeft']) { mx -= 1; GAME.player.facing = 'left'; }
+            if (GAME.keys['KeyD'] || GAME.keys['ArrowRight']) { mx += 1; GAME.player.facing = 'right'; }
+        } else {
+            const ai = computeOfficeAgentDecision();
+            mx = ai.mx;
+            my = ai.my;
+            if (mx < 0) GAME.player.facing = 'left';
+            if (mx > 0) GAME.player.facing = 'right';
+        }
+
+        if (mx !== 0 || my !== 0) {
+            GAME.player.legPhase += dt * 14;
+            const len = Math.hypot(mx, my);
+            if (len > 0) {
+                mx /= len;
+                my /= len;
+            }
+        }
+
+        GAME.player.x += mx * GAME.player.speed;
+        GAME.player.y += my * GAME.player.speed;
+
+        // 边界
+        if (GAME.player.x < 35) GAME.player.x = 35;
+        if (GAME.player.x > 965) GAME.player.x = 965;
+        if (GAME.player.y < 45) GAME.player.y = 45;
+        if (GAME.player.y > 330) GAME.player.y = 330;
+
+        // 办公桌碰撞
+        GAME.desks.forEach(d => {
+            const px = GAME.player.x;
+            const py = GAME.player.y;
+            const r = 12;
+            if (px + r > d.x && px - r < d.x + d.w && py + r > d.y && py - r < d.y + d.h) {
+                const overlapLeft = (px + r) - d.x;
+                const overlapRight = (d.x + d.w) - (px - r);
+                const overlapTop = (py + r) - d.y;
+                const overlapBottom = (d.y + d.h) - (py - r);
+
+                const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+                if (minOverlap === overlapLeft) GAME.player.x = d.x - r;
+                else if (minOverlap === overlapRight) GAME.player.x = d.x + d.w + r;
+                else if (minOverlap === overlapTop) GAME.player.y = d.y - r;
+                else if (minOverlap === overlapBottom) GAME.player.y = d.y + d.h + r;
+            }
+        });
+
+        // 领导抓包
+        GAME.boss.x += GAME.boss.dir * 0.85;
+        if (GAME.boss.x > GAME.boss.range[1]) GAME.boss.dir = -1;
+        if (GAME.boss.x < GAME.boss.range[0]) GAME.boss.dir = 1;
+
+        const bossDist = Math.hypot(GAME.player.x - GAME.boss.x, GAME.player.y - GAME.boss.y);
+        if (bossDist < 45) {
+            addLog("😱 冤家路窄！迎面撞见直属领导谈KPI！强行寒暄扣除 6 秒！");
+            GAME.timeLeft -= 6.0;
+            GAME.player.x -= 20;
+        }
+
+        // 核心优化 1：电梯近距离交互热区检测 (门前 Y: 90~140, 感应半径 65)
+        GAME.nearElevator = null;
+        for (let e of GAME.elevators) {
+            // 检测点在电梯正门口下方 (e.x + e.w/2, e.y + e.h + 20)
+            const doorFrontX = e.x + e.w / 2;
+            const doorFrontY = e.y + e.h + 20;
+            const dist = Math.hypot(GAME.player.x - doorFrontX, GAME.player.y - doorFrontY);
+            if (dist < 65) {
+                GAME.nearElevator = e;
+                break;
+            }
+        }
+
+        // AI 自动逻辑
+        if (GAME.mode === 'sim') {
+            GAME.stalls.forEach(st => {
+                const dist = Math.hypot(GAME.player.x - st.x, GAME.player.y - (st.y + st.h / 2));
+                if (dist < 40 && !st.occupied) {
+                    finishGame(true, `AI Agent 在【${GAME.currentFloor}层 ${st.id}号坑】一把反锁！完成了神圣的带薪解脱！`);
+                }
+            });
+
+            const hasFreeStall = GAME.stalls.some(s => !s.occupied);
+            if (!hasFreeStall) {
+                if (GAME.nearElevator && GAME.nearElevator.isFree) {
+                    const nextFloor = GAME.currentFloor > 2 ? GAME.currentFloor - 1 : GAME.currentFloor + 1;
+                    addLog(`🛗 本层全满！AI 果断搭乘 ${GAME.nearElevator.id}# 电梯前往【${nextFloor}层】！`);
+                    GAME.timeLeft -= 10;
+                    initFloorScene(nextFloor);
+                    GAME.player.x = GAME.nearElevator.x + 25;
+                    GAME.player.y = 130;
+                }
+            }
+        }
+
+        updateHUD();
+    }
+
+    function computeOfficeAgentDecision() {
+        let targetX = 860;
+        let targetY = 180;
+
+        const freeStall = GAME.stalls.find(s => !s.occupied);
+        if (freeStall) {
+            targetX = freeStall.x - 15;
+            targetY = freeStall.y + freeStall.h / 2;
+        } else {
+            const freeElev = GAME.elevators.find(e => e.isFree);
+            if (freeElev) {
+                targetX = freeElev.x + freeElev.w / 2;
+                targetY = freeElev.y + freeElev.h + 20;
+            } else {
+                targetX = GAME.stairs.x + 25;
+                targetY = GAME.stairs.y + 40;
+            }
+        }
+
+        let dirX = targetX - GAME.player.x;
+        let dirY = targetY - GAME.player.y;
+        const dist = Math.hypot(dirX, dirY);
+        if (dist > 0) {
+            dirX /= dist;
+            dirY /= dist;
+        }
+
+        let avoidForceX = 0;
+        let avoidForceY = 0;
+
+        GAME.desks.forEach(d => {
+            const cx = d.x + d.w / 2;
+            const cy = d.y + d.h / 2;
+            const dx = GAME.player.x - cx;
+            const dy = GAME.player.y - cy;
+            const dDist = Math.hypot(dx, dy);
+            const dangerDist = 65;
+
+            if (dDist < dangerDist && dDist > 0) {
+                const strength = Math.pow((dangerDist - dDist) / dangerDist, 2) * 3.5;
+                avoidForceX += (dx / dDist) * strength;
+                avoidForceY += (dy / dDist) * strength;
+            }
+        });
+
+        const step = Math.hypot(GAME.player.x - GAME.player.lastX, GAME.player.y - GAME.player.lastY);
+        GAME.player.lastX = GAME.player.x;
+        GAME.player.lastY = GAME.player.y;
+
+        if (step < 0.25) {
+            GAME.player.stuckFrames++;
+            if (GAME.player.stuckFrames > 8) {
+                avoidForceY += GAME.player.avoidDir * 3.5;
+                avoidForceX += (Math.random() - 0.5) * 1.5;
+                if (GAME.player.stuckFrames % 25 === 0) GAME.player.avoidDir = -GAME.player.avoidDir;
+            }
+        } else {
+            GAME.player.stuckFrames = Math.max(0, GAME.player.stuckFrames - 1);
+        }
+
+        return { mx: dirX + avoidForceX, my: dirY + avoidForceY };
+    }
+
+    function updateHUD() {
+        const m = Math.floor(Math.max(0, GAME.timeLeft) / 60);
+        const s = (Math.max(0, GAME.timeLeft) % 60).toFixed(1);
+        document.getElementById('valSphincter').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(4,'0')}`;
+        document.getElementById('barSphincter').style.width = `${(Math.max(0, GAME.timeLeft) / OFFICE_CONFIG.maxTime) * 100}%`;
+
+        document.getElementById('valStamina').innerText = `${Math.round(GAME.stamina)}%`;
+        document.getElementById('barStamina').style.width = `${GAME.stamina}%`;
+
+        document.getElementById('valFloor').innerText = `${GAME.currentFloor} 层`;
+        document.getElementById('valSalary').innerText = `已薅羊毛: ￥ ${GAME.earnedMoney.toFixed(2)}`;
+    }
+
+    /* ==========================================================================
+       5. 渲染引擎与交互热区提示
+       ========================================================================== */
+    function renderScene() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+
+        if (GAME.screenShake > 0) {
+            ctx.translate((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
+        }
+
+        // 1. 地板背景
+        ctx.fillStyle = "#1e293b";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 走廊大理石路面
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(360, 105, 480, 150);
+
+        // 2. 安全楼梯间
+        const st = GAME.stairs;
+        ctx.fillStyle = "#0f172a";
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.fillRect(st.x, st.y, st.w, st.h);
+        ctx.strokeRect(st.x, st.y, st.w, st.h);
+        ctx.fillStyle = "#38bdf8";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("安全通道", st.x + st.w / 2, st.y + 35);
+        ctx.fillText("走楼梯", st.x + st.w / 2, st.y + 55);
+
+        // 3. 办公桌
+        GAME.desks.forEach(d => {
+            ctx.fillStyle = "#475569";
+            ctx.fillRect(d.x, d.y, d.w, d.h);
+            ctx.strokeStyle = "#64748b";
+            ctx.strokeRect(d.x, d.y, d.w, d.h);
+
+            ctx.fillStyle = "#0284c7";
+            ctx.fillRect(d.x + 25, d.y + 16, 30, 8);
+            ctx.fillStyle = "#0f172a";
+            ctx.beginPath();
+            ctx.arc(d.x + 40, d.y + 35, 8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // 4. 电梯门与交互缓冲区
+        GAME.elevators.forEach(e => {
+            const isNearThis = (GAME.nearElevator && GAME.nearElevator.id === e.id);
+
+            // 如果玩家正靠近本部电梯，在门前绘制呼吸光效地板
+            if (isNearThis) {
+                ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+                ctx.fillRect(e.x - 4, e.y + e.h, e.w + 8, 35);
+            }
+
+            ctx.fillStyle = e.isFree ? "#065f46" : "#7f1d1d";
+            ctx.strokeStyle = isNearThis ? "#38bdf8" : (e.isFree ? "#10b981" : "#ef4444");
+            ctx.lineWidth = isNearThis ? 3 : 2;
+            ctx.fillRect(e.x, e.y, e.w, e.h);
+            ctx.strokeRect(e.x, e.y, e.w, e.h);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`${e.id}#梯`, e.x + e.w / 2, e.y + 24);
+            ctx.fillText(e.isFree ? "空闲" : "满员", e.x + e.w / 2, e.y + 40);
+        });
+
+        // 5. 卫生间隔间
+        GAME.stalls.forEach(s => {
+            ctx.fillStyle = s.occupied ? "#7f1d1d" : "#064e3b";
+            ctx.strokeStyle = s.occupied ? "#ef4444" : "#10b981";
+            ctx.lineWidth = 3;
+            ctx.fillRect(s.x, s.y, s.w, s.h);
+            ctx.strokeRect(s.x, s.y, s.w, s.h);
+
+            ctx.fillStyle = s.occupied ? "#f87171" : "#34d399";
+            ctx.beginPath();
+            ctx.arc(s.x + 18, s.y + s.h / 2, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText(`${s.id}号 ${s.occupied ? '有人' : '空闲'}`, s.x + 28, s.y + s.h / 2 + 4);
+        });
+
+        // 6. 领导
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath();
+        ctx.arc(GAME.boss.x, GAME.boss.y, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("领导", GAME.boss.x, GAME.boss.y + 4);
+
+        // 7. 主角小人
+        renderPlayerCharacter();
+
+        // 8. 靠近提示浮窗
+        if (GAME.mode === 'manual') {
+            checkOfficePrompts();
+        }
+
+        ctx.restore();
+    }
+
+    function renderPlayerCharacter() {
+        const px = GAME.player.x;
+        const py = GAME.player.y;
+
+        ctx.fillStyle = (GAME.mode === 'sim') ? "rgba(16, 185, 129, 0.45)" : "rgba(56, 189, 248, 0.45)";
+        ctx.beginPath();
+        ctx.ellipse(px, py + 12, 18, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const legOffset = Math.sin(GAME.player.legPhase) * 6;
+        ctx.fillStyle = "#1e293b";
+        ctx.fillRect(px - 7, py + 6 + legOffset, 5, 8);
+        ctx.fillRect(px + 2, py + 6 - legOffset, 5, 8);
+
+        ctx.fillStyle = (GAME.mode === 'sim') ? "#34d399" : "#facc15";
+        ctx.beginPath();
+        ctx.arc(px, py, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#b45309";
+        const bagX = GAME.player.facing === 'right' ? px - 11 : px + 5;
+        ctx.fillRect(bagX, py - 6, 6, 11);
+
+        ctx.fillStyle = "#0f172a";
+        ctx.beginPath();
+        ctx.arc(px, py - 4, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = "15px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(GAME.mode === 'sim' ? "🤖" : "😣💦", px, py - 16);
+    }
+
+    function checkOfficePrompts() {
+        // 电梯门前专属提示
+        if (GAME.nearElevator) {
+            renderPromptText(GAME.nearElevator.x + 26, GAME.nearElevator.y + 75, "按 [E] 搭电梯换层");
+            return;
+        }
+
+        // 卫生间提示
+        for (let s of GAME.stalls) {
+            if (Math.hypot(GAME.player.x - s.x, GAME.player.y - (s.y + s.h / 2)) < 55) {
+                renderPromptText(s.x - 20, s.y + s.h / 2, "按 [E] 推门入坑");
+                return;
+            }
+        }
+
+        // 楼梯提示
+        const st = GAME.stairs;
+        if (Math.hypot(GAME.player.x - (st.x + st.w), GAME.player.y - (st.y + st.h / 2)) < 50) {
+            renderPromptText(st.x + 20, st.y + 40, "按 [E] 爬楼梯换层");
+        }
+    }
+
+    function renderPromptText(x, y, text) {
+        ctx.fillStyle = "#0f172a";
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.fillRect(x - 45, y - 12, 110, 24);
+        ctx.strokeRect(x - 45, y - 12, 110, 24);
+        ctx.fillStyle = "#38bdf8";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(text, x + 10, y + 4);
+    }
+
+    /* ==========================================================================
+       6. 交互事件与电梯选层弹窗
+       ========================================================================== */
+    window.addEventListener('keydown', e => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+            e.preventDefault();
+        }
+        GAME.keys[e.code] = true;
+
+        if (e.code === 'KeyE' && GAME.mode === 'manual' && GAME.isRunning) {
+            performOfficeInteraction();
+        }
+    });
+
+    window.addEventListener('keyup', e => {
+        GAME.keys[e.code] = false;
+    });
+
+    function triggerKeyAction(code) {
+        if (code === 'KeyE') performOfficeInteraction();
+        else if (code === 'Space') {
+            GAME.keys['Space'] = !GAME.keys['Space'];
+        }
+    }
+
+    function performOfficeInteraction() {
+        if (!GAME.isRunning) return;
+
+        // 1. 电梯交互 (核心修复：靠近电梯按 E 弹出游戏内选层弹窗)
+        if (GAME.nearElevator) {
+            const e = GAME.nearElevator;
+            if (e.isFree) {
+                openElevatorModal(e);
+            } else {
+                addLog(`🚨 ${e.id}# 电梯超载报警！里面挤满了人，你被推了出来！`);
+            }
+            return;
+        }
+
+        // 2. 卫生间推门
+        for (let s of GAME.stalls) {
+            if (Math.hypot(GAME.player.x - s.x, GAME.player.y - (s.y + s.h / 2)) < 60) {
+                if (!s.occupied) {
+                    finishGame(true, `成功推开【${GAME.currentFloor}层 ${s.id}号坑】反锁！开启神圣带薪摸鱼时刻！`);
+                } else {
+                    addLog("💥 门挂红锁！里面传来同事怒吼：“敲什么敲，等会儿！” 括约肌剧痛！");
+                    GAME.timeLeft -= 6.0;
+                    GAME.screenShake = 2.0;
+                }
+                return;
+            }
+        }
+
+        // 3. 安全通道爬楼梯
+        const st = GAME.stairs;
+        if (Math.hypot(GAME.player.x - (st.x + st.w), GAME.player.y - (st.y + st.h / 2)) < 60) {
+            const nextFloor = GAME.currentFloor > 2 ? GAME.currentFloor - 1 : GAME.currentFloor + 1;
+            addLog(`🏃 钻进安全通道，气喘吁吁爬楼梯前往【${nextFloor}层】，耗时 30 秒...`);
+            GAME.timeLeft -= 30;
+            initFloorScene(nextFloor);
+            GAME.player.x = st.x + st.w + 20;
+            GAME.player.y = st.y + st.h / 2;
+        }
+    }
+
+    let activeElevator = null;
+    function openElevatorModal(elev) {
+        activeElevator = elev;
+        GAME.isRunning = false; // 选层期间冻结游戏
+        document.getElementById('elevModalTitle').innerText = `🛗 已进入 ${elev.id}# 电梯轿厢`;
+        const container = document.getElementById('elevFloorBtns');
+        container.innerHTML = '';
+
+        for (let f = 2; f <= OFFICE_CONFIG.totalFloors; f++) {
+            if (f === GAME.currentFloor) continue;
+            const btn = document.createElement('button');
+            btn.className = 'floor-btn';
+            btn.innerText = `${f} F`;
+            btn.onclick = () => selectElevFloor(f);
+            container.appendChild(btn);
+        }
+        document.getElementById('modalElevator').style.display = 'flex';
+    }
+
+    function closeElevModal() {
+        document.getElementById('modalElevator').style.display = 'none';
+        GAME.isRunning = true;
+        addLog("🚪 犹豫未决，电梯门关上开走了……");
+    }
+
+    function selectElevFloor(targetFloor) {
+        document.getElementById('modalElevator').style.display = 'none';
+        const cost = Math.abs(targetFloor - GAME.currentFloor) * 10;
+        addLog(`🚀 搭乘 ${activeElevator.id}# 电梯直奔【${targetFloor}层】，耗时 ${cost} 秒...`);
+        GAME.timeLeft -= cost;
+
+        initFloorScene(targetFloor);
+        GAME.player.x = activeElevator.x + 25;
+        GAME.player.y = 125;
+
+        GAME.isRunning = true;
+    }
+
+    function addLog(msg) {
+        const box = document.getElementById('rpgLogBox');
+        const row = document.createElement('div');
+        row.className = 'log-item';
+        row.innerHTML = `<span style="color:#38bdf8;">[${Math.max(0, GAME.timeLeft).toFixed(0)}s]</span> ${msg}`;
+        box.appendChild(row);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function clearLogs() {
+        document.getElementById('rpgLogBox').innerHTML = '';
+    }
+
+    function finishGame(isWin, desc) {
+        GAME.isRunning = false;
+        updateStartButtonUI();
+
+        const modal = document.getElementById('modalResult');
+        const t = document.getElementById('resTitle');
+        const icon = document.getElementById('resIcon');
+        const d = document.getElementById('resDesc');
+
+        if (isWin) {
+            t.innerText = "🎉 完美解脱！带薪摸鱼达成！";
+            t.style.color = "var(--success)";
+            icon.innerText = "🚽👑";
+            const spent = (OFFICE_CONFIG.maxTime - GAME.timeLeft).toFixed(1);
+            d.innerHTML = `${desc}<br><br>摸鱼耗时：<strong>${spent} 秒</strong><br>薅到公司羊毛收益：<strong style="color:#facc15;">￥ ${GAME.earnedMoney.toFixed(2)} 元</strong>！`;
+        } else {
+            t.innerText = "💩 惨烈社死！";
+            t.style.color = "var(--danger)";
+            icon.innerText = "💥🪦";
+            d.innerHTML = `${desc}<br><br>你的传说将在公司茶水间流传很久很久……`;
+        }
+        modal.style.display = 'flex';
+    }
+
+    /* ==========================================================================
+       7. 80,000 级大厂写字楼纯数学蒙特卡洛高并发推演
+       ========================================================================== */
+    let isBatchRunning = false;
+    let batchCancelRequested = false;
+
+    function stopBatchSim() {
+        if (!isBatchRunning) return;
+        batchCancelRequested = true;
+        document.getElementById('btnStopBatch').disabled = true;
+        document.getElementById('batchProgressLabel').innerText = "正在中断推演，正在汇总已完成数据...";
+    }
+
+    function runBatchSim() {
+        const totalCount = parseInt(document.getElementById('batchSimCount').value);
+        const btnStart = document.getElementById('btnStartBatch');
+        const btnStop = document.getElementById('btnStopBatch');
+
+        isBatchRunning = true;
+        batchCancelRequested = false;
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+
+        const pBar = document.getElementById('batchProgressBar');
+        const pLabel = document.getElementById('batchProgressLabel');
+        const pNums = document.getElementById('batchProgressNumbers');
+
+        pBar.style.width = '0%';
+        pLabel.innerText = "推演状态：正在极速推演大厦客流...";
+        pNums.innerText = `0 / ${totalCount.toLocaleString()} (0%)`;
+
+        let successCount = 0;
+        let failCount = 0;
+        let stairUseCount = 0;
+        const durations = [];
+
+        let executed = 0;
+        const chunkSize = totalCount >= 50000 ? 4000 : 1500;
+
+        function processBatchChunk() {
+            if (batchCancelRequested) {
+                finalizeBatchResults(true);
+                return;
+            }
+
+            const currentBatch = Math.min(chunkSize, totalCount - executed);
+
+            for (let i = 0; i < currentBatch; i++) {
+                let t = (OFFICE_CONFIG.maxTime || 180) * 1.0;
+                let curFloor = Math.floor(Math.random() * (OFFICE_CONFIG.totalFloors - 1)) + 2;
+                let resolved = false;
+
+                while (t > 0) {
+                    const floorSuccessRate = 1.0 - Math.pow(0.76, OFFICE_CONFIG.stallsPerFloor || 5);
+                    t -= (3.5 + Math.random() * 2.5);
+
+                    if (Math.random() < floorSuccessRate) {
+                        successCount++;
+                        durations.push(OFFICE_CONFIG.maxTime - t);
+                        resolved = true;
+                        break;
+                    }
+
+                    if (Math.random() < 0.90) {
+                        t -= 10.0;
+                    } else {
+                        t -= 30.0;
+                        stairUseCount++;
+                    }
+
+                    curFloor = curFloor > 2 ? curFloor - 1 : curFloor + 1;
+                }
+
+                if (!resolved) failCount++;
+            }
+
+            executed += currentBatch;
+            const pct = Math.min(100, (executed / totalCount) * 100);
+
+            pBar.style.width = `${pct}%`;
+            pNums.innerText = `${executed.toLocaleString()} / ${totalCount.toLocaleString()} (${pct.toFixed(1)}%)`;
+
+            if (executed < totalCount && !batchCancelRequested) {
+                setTimeout(processBatchChunk, 6);
+            } else {
+                finalizeBatchResults(false);
+            }
+        }
+
+        function finalizeBatchResults(wasAborted) {
+            isBatchRunning = false;
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+
+            const finalCount = executed || 1;
+            if (wasAborted) {
+                pLabel.innerText = `⚠️ 推演已手动终止！共截取样本：${executed.toLocaleString()} 轮`;
+                pBar.style.background = 'var(--warning)';
+            } else {
+                pLabel.innerText = `✅ 推演圆满完成！总样本量：${totalCount.toLocaleString()} 轮`;
+                pBar.style.background = 'var(--success)';
+            }
+
+            durations.sort((a, b) => a - b);
+            const meanSec = durations.length > 0 ? (durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+            const medianSec = durations.length > 0 ? durations[Math.floor(durations.length / 2)] : 0;
+            const avgSalary = (meanSec * OFFICE_CONFIG.salaryPerSec).toFixed(2);
+
+            document.getElementById('simStatTotal').innerText = finalCount.toLocaleString();
+            document.getElementById('simStatSuccess').innerText = successCount.toLocaleString();
+            document.getElementById('simStatFail').innerText = failCount.toLocaleString();
+            document.getElementById('simStatRate').innerText = `${((successCount / finalCount) * 100).toFixed(1)}%`;
+            document.getElementById('simStatMean').innerText = `${meanSec.toFixed(1)} 秒`;
+            document.getElementById('simStatMedian').innerText = `${medianSec.toFixed(1)} 秒`;
+            document.getElementById('simStatStairRate').innerText = `${((stairUseCount / (finalCount * 2)) * 100).toFixed(0)}%`;
+            document.getElementById('simStatSalaryAvg').innerText = `￥ ${avgSalary}`;
+
+            renderHistogram(durations);
+        }
+
+        setTimeout(processBatchChunk, 10);
+    }
+
+    function renderHistogram(durations) {
+        const box = document.getElementById('simHistBox');
+        box.innerHTML = '';
+        if (durations.length === 0) return;
+
+        const buckets = { '0~20秒':0, '20~45秒':0, '45~90秒':0, '90~140秒':0, '140~180秒':0 };
+        durations.forEach(d => {
+            if (d <= 20) buckets['0~20秒']++;
+            else if (d <= 45) buckets['20~45秒']++;
+            else if (d <= 90) buckets['45~90秒']++;
+            else if (d <= 140) buckets['90~140秒']++;
+            else buckets['140~180秒']++;
+        });
+
+        const max = Math.max(...Object.values(buckets));
+        for (const [k, v] of Object.entries(buckets)) {
+            const row = document.createElement('div');
+            row.className = 'hist-row';
+            row.innerHTML = `
+                <div class="hist-label">${k}</div>
+                <div class="hist-track"><div class="hist-fill" style="width: ${(v / max) * 100}%;"></div></div>
+                <div class="hist-cnt">${v.toLocaleString()}人 (${((v / durations.length) * 100).toFixed(0)}%)</div>
+            `;
+            box.appendChild(row);
+        }
+    }
+
+    /* ==========================================================================
+       8. 初始化与页面加载
+       ========================================================================== */
+    window.onload = () => {
+        canvas = document.getElementById('officeCanvas');
+        ctx = canvas.getContext('2d');
+
+        syncOfficeFloorOptions();
+        switchGameMode('manual');
+
+        requestAnimationFrame(masterLoop);
+    };
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

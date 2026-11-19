@@ -1,0 +1,895 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>元细胞模拟机 v2.1</title>
+<style>
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #131a2e;
+    --bg-card: #1a2340;
+    --bg-input: #0f1528;
+    --accent: #4a9eff;
+    --accent-hover: #6db3ff;
+    --accent-glow: rgba(74,158,255,0.3);
+    --text-primary: #e8eaf0;
+    --text-secondary: #8892a8;
+    --text-dim: #556;
+    --danger: #ff4a6a;
+    --success: #4aff8a;
+    --warning: #ffc04a;
+    --border: rgba(74,158,255,0.15);
+    --border-active: rgba(74,158,255,0.5);
+    --color-max: #ff9f43;
+    --color-min: #a55eea;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== 欢迎界面 ===== */
+  #welcome-screen {
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; min-height:100vh; position:relative; overflow:hidden;
+  }
+  .bg-grid {
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(74,158,255,0.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(74,158,255,0.05) 1px,transparent 1px);
+    background-size:60px 60px;
+    animation:gridMove 20s linear infinite;
+  }
+  @keyframes gridMove { 0%{transform:translate(0,0)} 100%{transform:translate(60px,60px)} }
+  .glow-orb {
+    position:absolute; border-radius:50%; filter:blur(80px); opacity:0.3;
+    animation:orbFloat 8s ease-in-out infinite alternate;
+  }
+  .glow-orb:nth-child(2){width:300px;height:300px;background:#4a9eff;top:20%;left:15%}
+  .glow-orb:nth-child(3){width:250px;height:250px;background:#a04aff;bottom:20%;right:15%;animation-delay:-3s}
+  .glow-orb:nth-child(4){width:200px;height:200px;background:#4affc8;top:60%;left:60%;animation-delay:-5s}
+  @keyframes orbFloat { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(30px,-40px) scale(1.2)} }
+  .welcome-content { position:relative; z-index:1; text-align:center; padding:20px; }
+  .logo-icon {
+    width:90px;height:90px;margin:0 auto 24px;border:2px solid var(--accent);
+    border-radius:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:12px;
+    animation:logoPulse 3s ease-in-out infinite;background:var(--bg-card);
+  }
+  .logo-icon span { background:var(--accent);border-radius:4px;opacity:.6;animation:cellBlink 2s ease-in-out infinite; }
+  .logo-icon span:nth-child(odd){animation-delay:.5s;opacity:1}
+  .logo-icon span:nth-child(3n){animation-delay:1s}
+  @keyframes logoPulse {
+    0%,100%{box-shadow:0 0 20px var(--accent-glow)}
+    50%{box-shadow:0 0 40px var(--accent-glow),0 0 60px rgba(74,158,255,0.1)}
+  }
+  @keyframes cellBlink { 0%,100%{opacity:.4} 50%{opacity:1} }
+  .welcome-title {
+    font-size:3rem;font-weight:700;margin-bottom:4px;
+    background:linear-gradient(135deg,#4a9eff,#a04aff,#4affc8);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .welcome-ver { font-size:.85rem; color:var(--accent); margin-bottom:6px; letter-spacing:2px; }
+  .welcome-subtitle { font-size:1.05rem;color:var(--text-secondary);margin-bottom:44px;letter-spacing:4px; }
+  .btn-group { display:flex;gap:16px;flex-wrap:wrap;justify-content:center; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    padding:13px 36px;border:none;border-radius:12px;font-size:1rem;font-weight:600;
+    cursor:pointer;transition:all .3s;letter-spacing:1px;position:relative;overflow:hidden;
+    white-space:nowrap;
+  }
+  .btn:active{transform:scale(.97)!important}
+  .btn-primary{background:linear-gradient(135deg,#4a9eff,#3a7fdf);color:#fff;box-shadow:0 4px 20px rgba(74,158,255,.3)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(74,158,255,.4)}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none}
+  .btn-secondary{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border)}
+  .btn-secondary:hover{background:var(--bg-secondary);border-color:var(--accent);transform:translateY(-2px)}
+  .btn-warn{background:linear-gradient(135deg,#ff4a6a,#df3a5a);color:#fff;box-shadow:0 4px 15px rgba(255,74,106,.25)}
+  .btn-warn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,74,106,.35)}
+  .btn-success{background:linear-gradient(135deg,#4aff8a,#2ac06a);color:#0a0e1a;box-shadow:0 4px 15px rgba(74,255,138,.2)}
+  .btn-success:hover{transform:translateY(-2px)}
+  .btn-sm{padding:9px 20px;font-size:.9rem;border-radius:10px}
+  .btn-xs{padding:6px 14px;font-size:.8rem;border-radius:8px}
+
+  /* ===== Modal generic ===== */
+  .modal-overlay {
+    display:none;position:fixed;inset:0;z-index:1000;
+    background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.active{display:flex}
+  .modal-box {
+    background:var(--bg-secondary);border:1px solid var(--border);border-radius:20px;
+    padding:32px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .modal-box h2{color:var(--accent);margin-bottom:18px;font-size:1.4rem;display:flex;align-items:center;gap:10px}
+  .modal-box ol{padding-left:20px;line-height:2;color:var(--text-secondary)}
+  .modal-box ol li{margin-bottom:6px}
+  .modal-box ol li strong{color:var(--text-primary)}
+
+  /* ===== Settings form ===== */
+  .form-row{margin-bottom:18px}
+  .form-row label{display:block;font-size:.92rem;color:var(--text-secondary);margin-bottom:6px}
+  .form-row input[type="number"]{
+    width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+    background:var(--bg-input);color:var(--text-primary);font-size:1rem;
+    transition:border-color .2s;outline:none;
+  }
+  .form-row input[type="number"]:focus{border-color:var(--accent)}
+  .form-hint{font-size:.78rem;color:var(--text-dim);margin-top:4px}
+  .form-actions{display:flex;gap:12px;margin-top:24px}
+  .form-actions .btn{flex:1}
+
+  /* ===== 主界面 ===== */
+  #app-screen { display:none; flex-direction:column; min-height:100vh; }
+  #app-screen.active { display:flex; }
+
+  /* Tab bar */
+  .tab-bar {
+    display:flex;align-items:center;gap:0;padding:6px 10px;
+    background:var(--bg-secondary);border-bottom:1px solid var(--border);
+    overflow-x:auto; flex-shrink:0;
+  }
+  .tab-bar::-webkit-scrollbar{height:3px}
+  .tab-bar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .tab-item {
+    display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px 10px 0 0;
+    font-size:.88rem;cursor:pointer;color:var(--text-secondary);border:1px solid transparent;
+    border-bottom:none;transition:all .2s;white-space:nowrap;position:relative;flex-shrink:0;
+  }
+  .tab-item:hover{color:var(--text-primary);background:rgba(74,158,255,.06)}
+  .tab-item.active{color:var(--accent);background:var(--bg-primary);border-color:var(--border)}
+  .tab-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+  .tab-dot.waiting{background:var(--warning)}
+  .tab-dot.running{background:var(--success);animation:dotPulse 1.2s infinite}
+  .tab-dot.paused{background:var(--warning)}
+  .tab-dot.ended{background:var(--danger)}
+  @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .tab-close {
+    width:18px;height:18px;border-radius:50%;border:none;background:transparent;
+    color:var(--text-dim);font-size:.85rem;cursor:pointer;display:flex;
+    align-items:center;justify-content:center;transition:all .2s;margin-left:2px;
+  }
+  .tab-close:hover{background:var(--danger);color:#fff}
+  .tab-add {
+    width:32px;height:32px;border-radius:10px;border:1px dashed var(--border);
+    background:transparent;color:var(--text-secondary);font-size:1.2rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s;flex-shrink:0;margin-left:6px;
+  }
+  .tab-add:hover{border-color:var(--accent);color:var(--accent);background:rgba(74,158,255,.08)}
+  .tab-add:disabled{opacity:.35;cursor:not-allowed}
+
+  /* Sim panels */
+  .sim-panel {
+    display:none;flex-direction:column;align-items:center;flex:1;
+    padding:14px;overflow-y:auto;
+  }
+  .sim-panel.active{display:flex}
+
+  /* top-bar: 两行布局 */
+  .top-bar {
+    width:100%;max-width:680px;
+    background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;
+    margin-bottom:12px;padding:10px 18px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .top-bar-row {
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:8px;
+  }
+  .stat{display:flex;align-items:center;gap:6px;font-size:.9rem}
+  .stat-label{color:var(--text-secondary)}
+  .stat-value{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:32px}
+
+  /* 极值行专用色 */
+  .stat-max .stat-label { color: var(--color-max); }
+  .stat-max .stat-value { color: var(--color-max); }
+  .stat-min .stat-label { color: var(--color-min); }
+  .stat-min .stat-value { color: var(--color-min); }
+
+  .minmax-divider {
+    width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;
+  }
+
+  .status-badge{padding:3px 12px;border-radius:20px;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+  .status-waiting{background:rgba(255,192,74,.15);color:var(--warning)}
+  .status-running{background:rgba(74,255,138,.15);color:var(--success)}
+  .status-paused{background:rgba(255,192,74,.15);color:var(--warning)}
+  .status-ended{background:rgba(255,74,106,.15);color:var(--danger)}
+
+  .config-summary{
+    font-size:.8rem;color:var(--text-dim);margin-bottom:8px;text-align:center;
+  }
+  .hint-bar{text-align:center;color:var(--text-secondary);font-size:.88rem;margin-bottom:10px;min-height:22px}
+
+  .grid-wrapper{
+    background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:14px;padding:8px;box-shadow:0 8px 40px rgba(0,0,0,.3);
+  }
+  .grid{display:grid;gap:3px}
+  .cell{
+    aspect-ratio:1;background:var(--bg-card);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;cursor:pointer;transition:background .2s,transform .15s,box-shadow .2s;
+    user-select:none;position:relative;overflow:hidden;min-width:0;
+  }
+  .cell:hover:not(.cell-disabled){background:rgba(74,158,255,.1);transform:scale(1.04);box-shadow:0 0 12px var(--accent-glow)}
+  .cell-disabled{cursor:default}
+  .cell-value{
+    font-size:clamp(.48rem,1.6vw,.88rem);text-align:center;word-break:break-all;
+    line-height:1.1;padding:1px;transition:color .3s;
+  }
+  .cell.has-value{animation:cellPop .25s ease-out}
+  @keyframes cellPop{0%{transform:scale(.85)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .cell.merged{animation:cellMerge .35s ease-out}
+  @keyframes cellMerge{0%{transform:scale(1.2);box-shadow:0 0 20px var(--accent-glow)}100%{transform:scale(1);box-shadow:none}}
+
+  /* 极值高亮边框 */
+  .cell.cell-is-max { box-shadow: inset 0 0 0 2px var(--color-max), 0 0 8px rgba(255,159,67,.3); }
+  .cell.cell-is-min { box-shadow: inset 0 0 0 2px var(--color-min), 0 0 8px rgba(165,94,234,.3); }
+  .cell.cell-is-max.cell-is-min { box-shadow: inset 0 0 0 2px var(--success), 0 0 8px rgba(74,255,138,.25); }
+
+  .controls{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .speed-control{display:flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:.85rem}
+  .speed-control input[type="range"]{width:90px;accent-color:var(--accent);cursor:pointer}
+
+  /* End modal */
+  .end-box{
+    background:var(--bg-secondary);border:1px solid var(--border);border-radius:20px;
+    padding:36px;text-align:center;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .end-box h2{color:var(--success);font-size:1.6rem;margin-bottom:10px}
+  .end-box .end-stats{color:var(--text-secondary);font-size:1rem;line-height:2;margin-bottom:20px}
+  .end-box .end-stats strong{color:var(--accent)}
+
+  /* Bottom bar */
+  .bottom-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 14px;background:var(--bg-secondary);border-top:1px solid var(--border);
+    font-size:.78rem;color:var(--text-dim);flex-shrink:0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  @media(max-width:500px){
+    .welcome-title{font-size:2rem}
+    .welcome-subtitle{font-size:.88rem;letter-spacing:2px}
+    .btn{padding:11px 24px;font-size:.92rem}
+    .modal-box{padding:22px}
+    .tab-item{padding:7px 12px;font-size:.82rem}
+    .stat{font-size:.8rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================ 欢迎界面 ================ -->
+<div id="welcome-screen">
+  <div class="bg-grid"></div>
+  <div class="glow-orb"></div><div class="glow-orb"></div><div class="glow-orb"></div>
+  <div class="welcome-content">
+    <div class="logo-icon">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <h1 class="welcome-title">元细胞模拟机</h1>
+    <div class="welcome-ver">v2.1</div>
+    <p class="welcome-subtitle">META-CELL SIMULATOR</p>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="enterApp()">🚀 开始模拟</button>
+      <button class="btn btn-secondary" onclick="showRules()">📖 查看规则</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================ 规则弹窗 ================ -->
+<div class="modal-overlay" id="rules-modal">
+  <div class="modal-box">
+    <h2>📖 模拟规则</h2>
+    <ol>
+      <li>进入后可<strong>自定义</strong>网格大小、初始数字、步数上限。</li>
+      <li>点击方格中<strong>任意一格</strong>开始，该格出现初始数字。</li>
+      <li>数字<strong>随机移动</strong>，每步 <strong>÷ 2</strong>。</li>
+      <li>每步在随机空格生成新的<strong>初始数字</strong>，同样移动并每步 ÷ 2。</li>
+      <li>两数相遇 → <strong>大 ÷ 小</strong>，结果留在原位继续运动。</li>
+      <li>全格数字<strong>完全一致</strong>或达到步数上限时，模拟结束。</li>
+      <li>运行时实时显示当前<strong>最大值</strong>和<strong>最小值</strong>，格子边框高亮标记。</li>
+      <li>最多可同时运行 <strong>6 个</strong>模拟，切换标签页即可。</li>
+    </ol>
+    <button class="btn btn-primary" onclick="hideModal('rules-modal')" style="width:100%;margin-top:20px">✓ 我已了解</button>
+  </div>
+</div>
+
+<!-- ================ 新建模拟设置弹窗 ================ -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-box">
+    <h2>⚙️ 模拟设置</h2>
+    <div class="form-row">
+      <label>网格大小（N × N）</label>
+      <input type="number" id="cfg-grid" min="3" max="20" value="8" step="1">
+      <div class="form-hint">范围 3 – 20，推荐 6 – 10</div>
+    </div>
+    <div class="form-row">
+      <label>初始数字</label>
+      <input type="number" id="cfg-init" min="1" max="1000000000" value="1024" step="1">
+      <div class="form-hint">建议使用 2 的幂次（如 512、1024、2048）</div>
+    </div>
+    <div class="form-row">
+      <label>步数上限（0 = 无限制）</label>
+      <input type="number" id="cfg-steps" min="0" max="999999" value="0" step="100">
+      <div class="form-hint">达到上限后自动停止，0 表示不限制</div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="hideModal('settings-modal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmCreate()">创建模拟</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================ 结束弹窗 ================ -->
+<div class="modal-overlay" id="end-modal">
+  <div class="end-box">
+    <h2 id="end-title">🎉 模拟完成！</h2>
+    <div class="end-stats">
+      <div>模拟名称：<strong id="end-name">-</strong></div>
+      <div>总步数：<strong id="end-steps">0</strong></div>
+      <div>最终值：<strong id="end-value">-</strong></div>
+      <div>细胞数：<strong id="end-cells">0</strong></div>
+    </div>
+    <button class="btn btn-primary" onclick="hideModal('end-modal')">✓ 确定</button>
+  </div>
+</div>
+
+<!-- ================ 主界面 ================ -->
+<div id="app-screen">
+  <div class="tab-bar" id="tab-bar">
+    <button class="tab-add" id="tab-add-btn" title="新建模拟" onclick="openSettings()">＋</button>
+  </div>
+
+  <div id="panels-container" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1rem;" id="empty-hint">
+      点击上方 ＋ 创建第一个模拟
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <span id="running-count">运行中: 0</span>
+    <span>最多 6 个并行模拟</span>
+    <button class="btn btn-xs btn-secondary" onclick="backToWelcome()">🏠 首页</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   常量
+   ============================================================ */
+const MAX_SIMS = 6;
+
+/* ============================================================
+   工具函数
+   ============================================================ */
+function fmt(n) {
+  if (n===null||n===undefined) return '—';
+  if (n===0) return '0';
+  const a=Math.abs(n);
+  if (a>=1e7) return n.toExponential(2);
+  if (a<0.0001&&a!==0) return n.toExponential(2);
+  if (Number.isInteger(n)) return n.toLocaleString();
+  if (a>=100) return parseFloat(n.toPrecision(6)).toString();
+  if (a>=1)   return parseFloat(n.toPrecision(5)).toString();
+  return parseFloat(n.toPrecision(3)).toString();
+}
+
+function valColor(v) {
+  if (v===null||v===undefined) return 'transparent';
+  if (v===0) return 'hsl(0,0%,40%)';
+  const log=Math.log2(Math.abs(v));
+  return `hsl(${((log*32)%360+360)%360},70%,50%)`;
+}
+
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+
+/* ============================================================
+   模拟引擎
+   ============================================================ */
+class Simulation {
+  constructor(id, cfg) {
+    this.id = id;
+    this.gridSize   = cfg.gridSize;
+    this.initNum    = cfg.initialNumber;
+    this.interval   = cfg.tickInterval || 400;
+    this.maxSteps   = cfg.maxSteps;
+
+    this.grid       = [];
+    this.entities   = [];
+    this.steps      = 0;
+    this.running    = false;
+    this.paused     = false;
+    this.ended      = false;
+    this.started    = false;
+    this.timer      = null;
+    this._nid       = 0;
+    this._mergedSet = new Set();
+    this._newSet    = new Set();
+
+    // 极值追踪
+    this.currentMax = null;
+    this.currentMin = null;
+
+    this._initGrid();
+  }
+
+  _initGrid(){ this.grid=Array.from({length:this.gridSize},()=>Array(this.gridSize).fill(null)); }
+  _key(x,y){ return `${x},${y}`; }
+
+  /* 计算当前极值 */
+  _computeMinMax(){
+    if(this.entities.length===0){
+      this.currentMax=null;
+      this.currentMin=null;
+      return;
+    }
+    let mx=-Infinity, mn=Infinity;
+    for(const e of this.entities){
+      if(e.value>mx) mx=e.value;
+      if(e.value<mn) mn=e.value;
+    }
+    this.currentMax=mx;
+    this.currentMin=mn;
+  }
+
+  begin(x,y){
+    this.entities.push({id:this._nid++,x,y,value:this.initNum});
+    this._syncGrid();
+    this._computeMinMax();
+    this.running=true; this.paused=false; this.ended=false; this.started=true;
+    this._schedule();
+  }
+
+  _schedule(){
+    if(!this.running||this.paused) return;
+    this.timer=setTimeout(()=>this._tick(), this.interval);
+  }
+
+  _tick(){
+    if(!this.running||this.paused) return;
+    this.steps++;
+    this._mergedSet.clear();
+    this._newSet.clear();
+    const DIRS=[{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
+
+    for(const e of this.entities){
+      const valid=DIRS.filter(d=>{
+        const nx=e.x+d.dx,ny=e.y+d.dy;
+        return nx>=0&&nx<this.gridSize&&ny>=0&&ny<this.gridSize;
+      });
+      const d=valid[Math.floor(Math.random()*valid.length)];
+      e.x+=d.dx; e.y+=d.dy; e.value/=2;
+    }
+
+    this._resolveCollisions();
+    this._spawn();
+    this._syncGrid();
+    this._computeMinMax();
+
+    if(activeSimId===this.id) renderSim(this);
+
+    if(this._checkEnd()||(this.maxSteps>0&&this.steps>=this.maxSteps)){
+      this.running=false; this.ended=true;
+      onSimEnd(this);
+      return;
+    }
+    this._schedule();
+  }
+
+  _resolveCollisions(){
+    const map={};
+    for(const e of this.entities){
+      const k=this._key(e.x,e.y);
+      if(!map[k]) map[k]=[];
+      map[k].push(e);
+    }
+    const res=[];
+    for(const k of Object.keys(map)){
+      const arr=map[k];
+      if(arr.length===1){res.push(arr[0]);continue;}
+      let s=arr[0];
+      for(let i=1;i<arr.length;i++){
+        const a=s.value,b=arr[i].value;
+        const big=Math.max(Math.abs(a),Math.abs(b));
+        const small=Math.min(Math.abs(a),Math.abs(b));
+        s.value= small===0?big:big/small;
+      }
+      this._mergedSet.add(k);
+      res.push(s);
+    }
+    this.entities=res;
+  }
+
+  _spawn(){
+    const occ=new Set(this.entities.map(e=>this._key(e.x,e.y)));
+    const empty=[];
+    for(let y=0;y<this.gridSize;y++)
+      for(let x=0;x<this.gridSize;x++)
+        if(!occ.has(this._key(x,y))) empty.push({x,y});
+    if(empty.length===0) return;
+    const c=empty[Math.floor(Math.random()*empty.length)];
+    this.entities.push({id:this._nid++,x:c.x,y:c.y,value:this.initNum});
+    this._newSet.add(this._key(c.x,c.y));
+  }
+
+  _syncGrid(){
+    this._initGrid();
+    for(const e of this.entities) this.grid[e.y][e.x]=e.value;
+  }
+
+  _checkEnd(){
+    if(this.entities.length<this.gridSize*this.gridSize) return false;
+    const v=this.entities[0].value;
+    return this.entities.every(e=>e.value===v);
+  }
+
+  pause(){this.paused=true;clearTimeout(this.timer);}
+  resume(){this.paused=false;this._schedule();}
+  stop(){this.running=false;this.ended=true;clearTimeout(this.timer);}
+  setSpeed(ms){this.interval=ms;}
+
+  get statusKey(){
+    if(this.ended) return 'ended';
+    if(!this.started) return 'waiting';
+    if(this.paused) return 'paused';
+    if(this.running) return 'running';
+    return 'waiting';
+  }
+}
+
+/* ============================================================
+   全局管理
+   ============================================================ */
+const sims = {};
+let simCounter = 0;
+let activeSimId = null;
+
+/* ============================================================
+   UI 基础
+   ============================================================ */
+function showModal(id){ document.getElementById(id).classList.add('active'); }
+function hideModal(id){ document.getElementById(id).classList.remove('active'); }
+function showRules(){ showModal('rules-modal'); }
+function enterApp(){
+  document.getElementById('welcome-screen').style.display='none';
+  document.getElementById('app-screen').classList.add('active');
+}
+function backToWelcome(){
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('welcome-screen').style.display='';
+}
+
+function getSimCount(){ return Object.keys(sims).length; }
+
+function updateRunningCount(){
+  const r=Object.values(sims).filter(s=>s.running&&!s.paused).length;
+  document.getElementById('running-count').textContent=`运行中: ${r}`;
+  document.getElementById('tab-add-btn').disabled = getSimCount()>=MAX_SIMS;
+}
+
+/* ============================================================
+   新建模拟
+   ============================================================ */
+function openSettings(){
+  if(getSimCount()>=MAX_SIMS) return;
+  document.getElementById('cfg-grid').value=8;
+  document.getElementById('cfg-init').value=1024;
+  document.getElementById('cfg-steps').value=0;
+  showModal('settings-modal');
+}
+
+function confirmCreate(){
+  const gs = clamp(parseInt(document.getElementById('cfg-grid').value)||8, 3, 20);
+  const init = clamp(parseInt(document.getElementById('cfg-init').value)||1024, 1, 1e9);
+  const steps = Math.max(0, parseInt(document.getElementById('cfg-steps').value)||0);
+  hideModal('settings-modal');
+
+  const id = 'sim_'+(simCounter++);
+  const sim = new Simulation(id, { gridSize:gs, initialNumber:init, maxSteps:steps });
+  sims[id] = sim;
+
+  createTab(id, sim);
+  createPanel(id, sim);
+  switchTo(id);
+  updateRunningCount();
+}
+
+/* ============================================================
+   Tab
+   ============================================================ */
+function createTab(id, sim){
+  const bar=document.getElementById('tab-bar');
+  const addBtn=document.getElementById('tab-add-btn');
+  const tab=document.createElement('div');
+  tab.className='tab-item'; tab.id='tab-'+id;
+  tab.onclick=(e)=>{ if(e.target.classList.contains('tab-close')) return; switchTo(id); };
+
+  const dot=document.createElement('span');
+  dot.className='tab-dot waiting'; dot.id='dot-'+id;
+
+  const label=document.createElement('span');
+  label.textContent=`#${simCounter} (${sim.gridSize}×${sim.gridSize})`;
+
+  const close=document.createElement('button');
+  close.className='tab-close'; close.innerHTML='×'; close.title='关闭';
+  close.onclick=()=>closeSim(id);
+
+  tab.append(dot,label,close);
+  bar.insertBefore(tab,addBtn);
+  document.getElementById('empty-hint').style.display='none';
+}
+
+function closeSim(id){
+  const sim=sims[id];
+  if(sim){sim.stop();clearTimeout(sim.timer);}
+  delete sims[id];
+  document.getElementById('tab-'+id)?.remove();
+  document.getElementById('panel-'+id)?.remove();
+  if(activeSimId===id){
+    const ids=Object.keys(sims);
+    if(ids.length>0) switchTo(ids[ids.length-1]);
+    else{ activeSimId=null; document.getElementById('empty-hint').style.display=''; }
+  }
+  updateRunningCount();
+}
+
+function switchTo(id){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sim-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id)?.classList.add('active');
+  document.getElementById('panel-'+id)?.classList.add('active');
+  activeSimId=id;
+  if(sims[id]) renderSim(sims[id]);
+}
+
+/* ============================================================
+   Panel
+   ============================================================ */
+function createPanel(id, sim){
+  const container=document.getElementById('panels-container');
+  const panel=document.createElement('div');
+  panel.className='sim-panel'; panel.id='panel-'+id;
+  const maxLabel=sim.maxSteps>0?sim.maxSteps.toLocaleString():'∞';
+
+  panel.innerHTML=`
+    <div class="top-bar">
+      <div class="top-bar-row">
+        <div class="stat"><span class="stat-label">步数</span><span class="stat-value" id="steps-${id}">0</span></div>
+        <div class="stat"><span class="stat-label">细胞</span><span class="stat-value" id="ent-${id}">0</span></div>
+        <span class="status-badge status-waiting" id="badge-${id}">等待中</span>
+      </div>
+      <div class="top-bar-row">
+        <div class="stat stat-max">
+          <span class="stat-label">🔺 最大</span>
+          <span class="stat-value" id="vmax-${id}">—</span>
+        </div>
+        <div class="minmax-divider"></div>
+        <div class="stat stat-min">
+          <span class="stat-label">🔻 最小</span>
+          <span class="stat-value" id="vmin-${id}">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="config-summary">
+      网格 ${sim.gridSize}×${sim.gridSize}　·　初始值 ${fmt(sim.initNum)}　·　上限 ${maxLabel} 步
+    </div>
+    <div class="hint-bar" id="hint-${id}">🖱️ 点击任意方格以开始模拟</div>
+    <div class="grid-wrapper"><div class="grid" id="grid-${id}"></div></div>
+    <div class="controls" id="ctrl-${id}" style="display:none">
+      <button class="btn btn-secondary btn-sm" id="pauseBtn-${id}" onclick="togglePause('${id}')">⏸️ 暂停</button>
+      <button class="btn btn-warn btn-sm" onclick="stopSim('${id}')">⏹️ 停止</button>
+      <div class="speed-control">
+        <span>🐢</span>
+        <input type="range" min="50" max="1000" value="400" step="50" oninput="changeSpeed('${id}',this.value)">
+        <span>🐇</span>
+      </div>
+    </div>
+  `;
+  container.appendChild(panel);
+  buildGridCells(id,sim);
+}
+
+function buildGridCells(id,sim){
+  const gridEl=document.getElementById('grid-'+id);
+  if(!gridEl) return;
+  gridEl.innerHTML='';
+  gridEl.style.gridTemplateColumns=`repeat(${sim.gridSize},1fr)`;
+  const maxW=Math.min(window.innerWidth-40,620);
+  const cellSize=Math.min(Math.floor((maxW-sim.gridSize*3-16)/sim.gridSize),64);
+  for(let y=0;y<sim.gridSize;y++){
+    for(let x=0;x<sim.gridSize;x++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.style.width=cellSize+'px'; cell.style.height=cellSize+'px';
+      cell.dataset.x=x; cell.dataset.y=y;
+      cell.addEventListener('click',()=>onCellClick(id,x,y));
+      const val=document.createElement('span');
+      val.className='cell-value';
+      cell.appendChild(val);
+      gridEl.appendChild(cell);
+    }
+  }
+}
+
+/* ============================================================
+   渲染
+   ============================================================ */
+function renderSim(sim){
+  const id=sim.id;
+  const gridEl=document.getElementById('grid-'+id);
+  if(!gridEl) return;
+  const cells=gridEl.querySelectorAll('.cell');
+  const cMax=sim.currentMax, cMin=sim.currentMin;
+  const allSame = cMax!==null && cMax===cMin;
+
+  let idx=0;
+  for(let y=0;y<sim.gridSize;y++){
+    for(let x=0;x<sim.gridSize;x++){
+      const cell=cells[idx];
+      const valEl=cell.querySelector('.cell-value');
+      const v=sim.grid[y][x];
+      const k=sim._key(x,y);
+
+      // 清除旧极值 class
+      cell.classList.remove('cell-is-max','cell-is-min');
+
+      if(v!==null){
+        valEl.textContent=fmt(v);
+        valEl.style.color='#fff';
+        cell.style.background=valColor(v);
+        cell.classList.add('cell-disabled');
+        cell.classList.remove('has-value','merged');
+
+        if(sim._mergedSet.has(k)){void cell.offsetWidth;cell.classList.add('merged');}
+        else if(sim._newSet.has(k)){void cell.offsetWidth;cell.classList.add('has-value');}
+
+        // 极值高亮（仅当不全相同时才分别标记）
+        if(!allSame && cMax!==null){
+          if(v===cMax) cell.classList.add('cell-is-max');
+          if(v===cMin) cell.classList.add('cell-is-min');
+        }
+      } else {
+        valEl.textContent='';
+        cell.style.background='';
+        cell.classList.remove('has-value','merged','cell-disabled');
+      }
+      idx++;
+    }
+  }
+
+  // 信息栏
+  document.getElementById('steps-'+id).textContent=sim.steps;
+  document.getElementById('ent-'+id).textContent=sim.entities.length;
+  document.getElementById('vmax-'+id).textContent=fmt(sim.currentMax);
+  document.getElementById('vmin-'+id).textContent=fmt(sim.currentMin);
+
+  updateBadge(id,sim.statusKey);
+  updateTabDot(id,sim.statusKey);
+  updateRunningCount();
+}
+
+function updateBadge(id,status){
+  const badge=document.getElementById('badge-'+id);
+  if(!badge) return;
+  badge.className='status-badge';
+  const m={waiting:['status-waiting','等待中'],running:['status-running','运行中'],paused:['status-paused','已暂停'],ended:['status-ended','已结束']};
+  const [c,t]=m[status]||m.waiting;
+  badge.classList.add(c); badge.textContent=t;
+}
+function updateTabDot(id,status){
+  const dot=document.getElementById('dot-'+id);
+  if(!dot) return;
+  dot.className='tab-dot '+status;
+}
+
+/* ============================================================
+   交互
+   ============================================================ */
+function onCellClick(id,x,y){
+  const sim=sims[id];
+  if(!sim||sim.started) return;
+  sim.begin(x,y);
+  renderSim(sim);
+  const ctrl=document.getElementById('ctrl-'+id); if(ctrl) ctrl.style.display='';
+  const hint=document.getElementById('hint-'+id); if(hint) hint.textContent='';
+  updateRunningCount();
+}
+
+function togglePause(id){
+  const sim=sims[id];
+  if(!sim||!sim.started||sim.ended) return;
+  if(sim.paused){
+    sim.resume();
+    document.getElementById('pauseBtn-'+id).textContent='⏸️ 暂停';
+  } else {
+    sim.pause();
+    document.getElementById('pauseBtn-'+id).textContent='▶️ 继续';
+  }
+  renderSim(sim);
+  updateRunningCount();
+}
+
+function stopSim(id){
+  const sim=sims[id];
+  if(!sim) return;
+  sim.stop();
+  renderSim(sim);
+  const hint=document.getElementById('hint-'+id);
+  if(hint) hint.textContent='模拟已手动停止';
+  updateRunningCount();
+}
+
+function changeSpeed(id,val){
+  const sim=sims[id];
+  if(!sim) return;
+  sim.setSpeed(1050-parseInt(val));
+}
+
+function onSimEnd(sim){
+  renderSim(sim);
+  updateRunningCount();
+  const allSame=sim.entities.length>0&&sim.entities.every(e=>e.value===sim.entities[0].value)&&sim.entities.length===sim.gridSize*sim.gridSize;
+  document.getElementById('end-title').textContent=allSame?'🎉 模拟完成！':'⏱️ 达到步数上限';
+  document.getElementById('end-name').textContent=`#${parseInt(sim.id.split('_')[1])+1} (${sim.gridSize}×${sim.gridSize})`;
+  document.getElementById('end-steps').textContent=sim.steps.toLocaleString();
+  document.getElementById('end-cells').textContent=sim.entities.length;
+  document.getElementById('end-value').textContent=sim.entities.length>0?fmt(sim.entities[0].value):'—';
+  showModal('end-modal');
+}
+
+/* ============================================================
+   Resize
+   ============================================================ */
+let _resizeT;
+window.addEventListener('resize',()=>{
+  clearTimeout(_resizeT);
+  _resizeT=setTimeout(()=>{
+    for(const id of Object.keys(sims)){
+      buildGridCells(id,sims[id]);
+      renderSim(sims[id]);
+    }
+  },250);
+});
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

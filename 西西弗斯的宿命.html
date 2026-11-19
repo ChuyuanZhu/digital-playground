@@ -1,0 +1,239 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西西弗斯模拟器</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #0f1115;
+            color: #9ca3af;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 { margin: 0; font-size: 1.4rem; color: #f3f4f6; letter-spacing: 2px; }
+        .quote { margin-top: 8px; font-size: 0.85rem; color: #6b7280; font-style: italic; }
+
+        canvas {
+            background-color: #161920;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #232733;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 36px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #374151;
+            color: #f9fafb;
+            border: 1px solid #4b5563;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.05s, background 0.2s;
+            outline: none;
+        }
+        button:active {
+            transform: scale(0.95);
+            background: #4b5563;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        .stats span { color: #e5e7eb; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>西西弗斯的宿命</h1>
+        <div class="quote" id="quoteText">“向高处挣扎本身，就足以充实一颗人心。”</div>
+    </div>
+
+    <canvas id="canvas" width="480" height="260"></canvas>
+
+    <div class="controls">
+        <button id="pushBtn" onclick="pushRock()">奋力推石 (或按空格)</button>
+        <div class="stats">
+            <div>轮回次数: <span id="loopCount">0</span></div>
+            <div>当前海拔: <span id="altitude">0</span>%</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const loopCountEl = document.getElementById('loopCount');
+        const altitudeEl = document.getElementById('altitude');
+        const quoteEl = document.getElementById('quoteText');
+
+        let progress = 0; // 0 到 100
+        let loops = 0;
+        let isRollingDown = false;
+
+        const quotes = [
+            "“诸神认为，没有比无休止的徒劳劳动更为可怕的刑罚。”",
+            "“巨石又滚了下去。他重新走向平原。”",
+            "“这就是荒谬英雄的日常。”",
+            "“你感到充实了吗？”",
+            "“在每一次坠落中，他都超越了命运。”"
+        ];
+
+        function pushRock() {
+            if (isRollingDown) return;
+            progress += 3.5; // 每次点击前进
+            if (progress >= 100) {
+                progress = 100;
+                reachSummit();
+            }
+        }
+
+        // 支持空格键狂敲
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                pushRock();
+            }
+        });
+
+        function reachSummit() {
+            isRollingDown = true;
+            loops++;
+            loopCountEl.innerText = loops;
+            quoteEl.innerText = quotes[loops % quotes.length];
+
+            // 巅峰暂停0.3秒，轰然滑落
+            setTimeout(() => {
+                const rollBackInterval = setInterval(() => {
+                    progress -= 2.5;
+                    if (progress <= 0) {
+                        progress = 0;
+                        isRollingDown = false;
+                        clearInterval(rollBackInterval);
+                    }
+                }, 20);
+            }, 300);
+        }
+
+        // 物理循环渲染
+        function render() {
+            // 重力衰减机制（不推就自然滑落）
+            if (!isRollingDown && progress > 0) {
+                progress -= 0.35;
+                if (progress < 0) progress = 0;
+            }
+
+            altitudeEl.innerText = Math.floor(progress);
+
+            // 清屏
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. 绘制斜坡山脊
+            ctx.beginPath();
+            ctx.moveTo(30, 230);
+            ctx.quadraticCurveTo(240, 210, 440, 50);
+            ctx.lineTo(440, 230);
+            ctx.closePath();
+            ctx.fillStyle = '#1e232d';
+            ctx.fill();
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 2. 计算巨石在山坡曲线上的坐标 (基于二次贝塞尔公式)
+            const t = progress / 100;
+            const p0 = { x: 50, y: 220 };
+            const p1 = { x: 240, y: 200 };
+            const p2 = { x: 420, y: 60 };
+
+            const rockX = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
+            const rockY = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y - 18;
+
+            // 3. 绘制推动者（小火柴人）
+            if (!isRollingDown) {
+                ctx.strokeStyle = '#9ca3af';
+                ctx.lineWidth = 2;
+                // 人物躯干与推姿
+                ctx.beginPath();
+                ctx.arc(rockX - 22, rockY + 5, 4, 0, Math.PI * 2); // 头
+                ctx.moveTo(rockX - 22, rockY + 9);
+                ctx.lineTo(rockX - 16, rockY + 18); // 躯干
+                ctx.lineTo(rockX - 6, rockY + 12);  // 手推石头
+                ctx.moveTo(rockX - 16, rockY + 18);
+                ctx.lineTo(rockX - 25, rockY + 26); // 后腿
+                ctx.stroke();
+            }
+
+            // 4. 绘制巨石
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(rockX, rockY, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#64748b';
+            ctx.fill();
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 巨石内部纹理
+            ctx.beginPath();
+            ctx.moveTo(rockX - 8, rockY - 6);
+            ctx.lineTo(rockX + 4, rockY + 8);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

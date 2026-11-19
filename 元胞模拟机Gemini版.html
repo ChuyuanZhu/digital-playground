@@ -1,0 +1,930 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元细胞并行模拟集群 - 极值监控版</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #0f172a;
+      --panel-bg: #1e293b;
+      --card-bg: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #475569;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --max-color: #fbbf24; /* 金黄色高亮大数 */
+      --min-color: #38bdf8; /* 天青色高亮小数 */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 顶部导航与创建栏 */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .input-group input {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 6px;
+      width: 70px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: var(--primary);
+      color: #fff;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary { background-color: var(--card-bg); }
+    .btn-secondary:hover:not(:disabled) { background-color: var(--border); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
+
+    /* 工作区布局 */
+    .workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    /* 侧边多实例管理 */
+    .sidebar {
+      width: 290px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .instance-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .instance-item {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .instance-item:hover {
+      border-color: var(--primary);
+    }
+
+    .instance-item.active {
+      border-color: var(--primary);
+      background: #1e3a8a;
+    }
+
+    .instance-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .instance-item-details {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .item-sub-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* 舞台主区 */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    }
+
+    .stage-empty {
+      color: var(--text-muted);
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* 主监控台 */
+    .main-inspector {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dashboard {
+      width: 100%;
+      max-width: 900px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .dashboard-top, .dashboard-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .status-panel {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 13px;
+    }
+
+    .status-panel span strong {
+      color: #60a5fa;
+      font-size: 15px;
+    }
+
+    /* 极值专用面板标签 */
+    .extremum-panel {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    .extremum-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .extremum-badge.max strong { color: var(--max-color); }
+    .extremum-badge.min strong { color: var(--min-color); }
+
+    .control-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .speed-tag {
+      background: var(--card-bg);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      color: #38bdf8;
+      border: 1px solid var(--border);
+    }
+
+    /* 网格容器 */
+    .grid-stage-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: auto;
+    }
+
+    .grid-container {
+      background: #020617;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      display: grid;
+      gap: 5px;
+    }
+
+    .cell {
+      background: var(--panel-bg);
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      overflow: hidden;
+      padding: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s;
+    }
+
+    .cell.clickable {
+      cursor: pointer;
+      border: 1px dashed #60a5fa;
+    }
+
+    .cell.clickable:hover {
+      background: #1e3a8a;
+    }
+
+    .cell.has-val {
+      background: #1d4ed8;
+      color: #ffffff;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+
+    /* 规则弹窗 */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      color: var(--text);
+    }
+
+    .modal-content h2 { margin-bottom: 12px; font-size: 18px; }
+    .modal-content ol { padding-left: 20px; line-height: 1.6; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .modal-content li { margin-bottom: 6px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部主配置 -->
+  <header>
+    <div class="brand">
+      <span>🧬 元细胞多实例集群</span>
+      <button class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px;" id="btn-open-rules">规则</button>
+    </div>
+
+    <div class="config-bar">
+      <div class="input-group">
+        <label>行</label>
+        <input type="number" id="cfg-rows" value="8" min="3" max="16">
+      </div>
+      <div class="input-group">
+        <label>列</label>
+        <input type="number" id="cfg-cols" value="8" min="3" max="16">
+      </div>
+      <div class="input-group">
+        <label>初始值</label>
+        <input type="number" id="cfg-init-val" value="1024" min="1">
+      </div>
+      <div class="input-group">
+        <label>步数上限(0为无限)</label>
+        <input type="number" id="cfg-max-steps" value="0" min="0">
+      </div>
+
+      <button class="btn" id="btn-create-sim">＋ 新建后台模拟</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- 侧边栏：多实例管理池 -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span>运行实例池 (<span id="instance-count">0</span>/6)</span>
+        <span style="font-size: 11px; font-weight: normal; color: var(--text-muted)">后台并发计算</span>
+      </div>
+      <div class="instance-list" id="instance-list"></div>
+    </div>
+
+    <!-- 舞台展示区 -->
+    <div class="stage" id="stage">
+      <div class="stage-empty" id="stage-empty">
+        <p>暂未选择或尚未创建模拟实例</p>
+        <button class="btn" onclick="document.getElementById('btn-create-sim').click()">立即新建一个模拟</button>
+      </div>
+
+      <div class="main-inspector hidden" id="main-inspector">
+        <!-- 仪表盘 -->
+        <div class="dashboard">
+          <!-- 上排：基础统计与控制 -->
+          <div class="dashboard-top">
+            <div class="status-panel">
+              <span>实例: <strong id="cur-id">#1</strong></span>
+              <span>步数: <strong id="cur-steps">0</strong><span id="cur-max-steps-tag" style="color:var(--text-muted)"></span></span>
+              <span>状态: <strong id="cur-status" style="font-size: 13px; color: var(--warning)">未初始化</strong></span>
+            </div>
+            <div class="control-actions">
+              <button class="btn btn-secondary" id="btn-slow">⏪ 减速</button>
+              <span class="speed-tag" id="cur-speed">2.00 s/步</span>
+              <button class="btn btn-secondary" id="btn-fast">⏩ 加速</button>
+              <button class="btn btn-secondary" id="btn-pause">暂停</button>
+              <button class="btn btn-danger" id="btn-terminate">销毁</button>
+            </div>
+          </div>
+
+          <!-- 下排：实时极值监控面板 -->
+          <div class="dashboard-bottom" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+            <div class="extremum-panel">
+              <span style="color: var(--text-muted); font-size: 12px;">实时极值监控:</span>
+              <div class="extremum-badge max">
+                <span style="color: var(--text-muted)">MAX ▲</span>
+                <strong id="cur-max-val">--</strong>
+              </div>
+              <div class="extremum-badge min">
+                <span style="color: var(--text-muted)">MIN ▼</span>
+                <strong id="cur-min-val">--</strong>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              活跃网格: <strong id="cur-occupied-count" style="color: #fff">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 棋盘网格容器 -->
+        <div class="grid-stage-wrapper">
+          <div class="grid-container" id="cur-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 规则模态框 -->
+  <div class="modal hidden" id="modal-rules">
+    <div class="modal-content">
+      <h2>模拟动力学规则</h2>
+      <ol>
+        <li><strong>初始注入</strong>：点击方格注入初始数值细胞。</li>
+        <li><strong>随机位移与折半</strong>：现存所有数字随机向邻格移动 1 步并除以 2。</li>
+        <li><strong>后台新生</strong>：每步完成后随机在空格中新生一个初始值细胞。</li>
+        <li><strong>相除碰撞</strong>：同格相遇触发碰撞（<strong>大数 ÷ 小数</strong>）。</li>
+        <li><strong>极值监控</strong>：实时追踪呈现盘面中的最大数字与最小数字（超出范围自动以科学计数法展示）。</li>
+        <li><strong>多开并发</strong>：系统支持最多 6 个模拟实例并行计算，后台独立演化。</li>
+      </ol>
+      <div style="text-align: right;">
+        <button class="btn" id="btn-close-rules">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MAX_PARALLEL_INSTANCES = 6;
+
+    // 格式化输出数值：极大与极小数自动转科学计数法
+    function formatValue(val) {
+      if (val === null || val === undefined) return '--';
+      if (val === 0) return '0';
+      const abs = Math.abs(val);
+      if (abs >= 1e6 || abs <= 1e-3) {
+        return val.toExponential(2);
+      }
+      return Number.isInteger(val) ? val.toString() : parseFloat(val.toFixed(2)).toString();
+    }
+
+    /**
+     * 单个模拟机引擎类
+     */
+    class SimulatorInstance {
+      constructor(id, rows, cols, initialValue, maxSteps) {
+        this.id = id;
+        this.rows = rows;
+        this.cols = cols;
+        this.initialValue = initialValue;
+        this.maxSteps = maxSteps;
+
+        this.steps = 0;
+        this.status = 'READY'; // READY, RUNNING, PAUSED, COMPLETED, REACHED_LIMIT
+        this.interval = 2000;  // 默认每步 2 秒
+        this.timer = null;
+        this.tokens = [];      // 存储格式: {r, c, value}
+
+        // 极值状态缓存
+        this.maxVal = null;
+        this.minVal = null;
+      }
+
+      start(r, c) {
+        if (this.status !== 'READY') return;
+        this.tokens = [{ r, c, value: this.initialValue }];
+        this.updateExtremums();
+        this.status = 'RUNNING';
+        this.startTimer();
+      }
+
+      startTimer() {
+        clearInterval(this.timer);
+        this.timer = setInterval(() => this.step(), this.interval);
+      }
+
+      pause() {
+        if (this.status === 'RUNNING') {
+          this.status = 'PAUSED';
+          clearInterval(this.timer);
+        }
+      }
+
+      resume() {
+        if (this.status === 'PAUSED') {
+          this.status = 'RUNNING';
+          this.startTimer();
+        }
+      }
+
+      speedUp() {
+        this.interval = Math.max(8, this.interval * 0.67);
+        if (this.status === 'RUNNING') this.startTimer();
+      }
+
+      slowDown() {
+        this.interval = this.interval * 1.5;
+        if (this.status === 'RUNNING') this.startTimer();
+      }
+
+      destroy() {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+
+      // 计算当前盘面极大值与极小值
+      updateExtremums() {
+        if (!this.tokens || this.tokens.length === 0) {
+          this.maxVal = null;
+          this.minVal = null;
+          return;
+        }
+        let max = -Infinity;
+        let min = Infinity;
+        for (let i = 0; i < this.tokens.length; i++) {
+          const v = this.tokens[i].value;
+          if (v > max) max = v;
+          if (v < min) min = v;
+        }
+        this.maxVal = max;
+        this.minVal = min;
+      }
+
+      step() {
+        this.steps++;
+
+        // 1. 现有细胞随机位移并折半
+        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        this.tokens.forEach(token => {
+          const validMoves = directions
+            .map(([dr, dc]) => [token.r + dr, token.c + dc])
+            .filter(([nr, nc]) => nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols);
+          const [nextR, nextC] = validMoves[Math.floor(Math.random() * validMoves.length)];
+          token.r = nextR;
+          token.c = nextC;
+          token.value = token.value / 2;
+        });
+
+        // 2. 随机在空方格生成新初始值
+        const occupied = new Set(this.tokens.map(t => `${t.r},${t.c}`));
+        const emptyCells = [];
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (!occupied.has(`${r},${c}`)) emptyCells.push([r, c]);
+          }
+        }
+
+        let spawnR, spawnC;
+        if (emptyCells.length > 0) {
+          [spawnR, spawnC] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        } else {
+          spawnR = Math.floor(Math.random() * this.rows);
+          spawnC = Math.floor(Math.random() * this.cols);
+        }
+        this.tokens.push({ r: spawnR, c: spawnC, value: this.initialValue });
+
+        // 3. 碰撞归约：同格按大数除以小数
+        const gridMap = new Map();
+        this.tokens.forEach(t => {
+          const key = `${t.r},${t.c}`;
+          if (!gridMap.has(key)) gridMap.set(key, []);
+          gridMap.get(key).push(t.value);
+        });
+
+        const nextTokens = [];
+        gridMap.forEach((values, key) => {
+          const [r, c] = key.split(',').map(Number);
+          if (values.length === 1) {
+            nextTokens.push({ r, c, value: values[0] });
+          } else {
+            values.sort((a, b) => b - a);
+            let merged = values[0];
+            for (let i = 1; i < values.length; i++) {
+              merged = values[i] === 0 ? 0 : merged / values[i];
+            }
+            nextTokens.push({ r, c, value: merged });
+          }
+        });
+        this.tokens = nextTokens;
+
+        // 4. 更新极值缓存
+        this.updateExtremums();
+
+        // 5. 检查终止条件
+        this.checkStatus();
+
+        // 6. UI 响应通知
+        manager.onInstanceUpdated(this);
+      }
+
+      checkStatus() {
+        const total = this.rows * this.cols;
+        if (this.tokens.length === total) {
+          const firstVal = this.tokens[0].value;
+          const allEqual = this.tokens.every(t => Math.abs(t.value - firstVal) < 1e-9);
+          if (allEqual) {
+            this.status = 'COMPLETED';
+            clearInterval(this.timer);
+            return;
+          }
+        }
+
+        if (this.maxSteps > 0 && this.steps >= this.maxSteps) {
+          this.status = 'REACHED_LIMIT';
+          clearInterval(this.timer);
+        }
+      }
+    }
+
+    /**
+     * 集群中心管理对象
+     */
+    const manager = {
+      instances: [],
+      activeInstanceId: null,
+      idCounter: 1,
+
+      create(rows, cols, initVal, maxSteps) {
+        if (this.instances.length >= MAX_PARALLEL_INSTANCES) {
+          alert(`并发模拟上限为 ${MAX_PARALLEL_INSTANCES} 个，请先销毁部分实例以释放资源。`);
+          return;
+        }
+
+        const sim = new SimulatorInstance(this.idCounter++, rows, cols, initVal, maxSteps);
+        this.instances.push(sim);
+        this.renderSidebar();
+        this.selectInstance(sim.id);
+      },
+
+      remove(id) {
+        const idx = this.instances.findIndex(it => it.id === id);
+        if (idx !== -1) {
+          this.instances[idx].destroy();
+          this.instances.splice(idx, 1);
+          if (this.activeInstanceId === id) {
+            this.activeInstanceId = this.instances.length > 0 ? this.instances[0].id : null;
+          }
+          this.renderSidebar();
+          this.renderStage();
+        }
+      },
+
+      getActive() {
+        return this.instances.find(it => it.id === this.activeInstanceId) || null;
+      },
+
+      selectInstance(id) {
+        this.activeInstanceId = id;
+        this.renderSidebar();
+        this.renderStage();
+      },
+
+      onInstanceUpdated(sim) {
+        this.updateSidebarItem(sim);
+        if (this.activeInstanceId === sim.id) {
+          this.renderStage();
+        }
+      },
+
+      renderSidebar() {
+        const listEl = document.getElementById('instance-list');
+        listEl.innerHTML = '';
+        document.getElementById('instance-count').textContent = this.instances.length;
+
+        this.instances.forEach(sim => {
+          const item = document.createElement('div');
+          item.className = `instance-item ${sim.id === this.activeInstanceId ? 'active' : ''}`;
+          item.id = `sidebar-item-${sim.id}`;
+          item.onclick = () => this.selectInstance(sim.id);
+
+          item.innerHTML = `
+            <div class="instance-item-header">
+              <span>模拟 #${sim.id} (${sim.rows}×${sim.cols})</span>
+              <span class="status-badge" style="color: ${this.getStatusColor(sim.status)}">${this.getStatusText(sim.status)}</span>
+            </div>
+            <div class="instance-item-details">
+              <div class="item-sub-row">
+                <span>步数: ${sim.steps}${sim.maxSteps > 0 ? '/' + sim.maxSteps : ''}</span>
+                <span>细胞: ${sim.tokens.length}</span>
+              </div>
+              <div class="item-sub-row" style="color: #cbd5e1; font-family: monospace;">
+                <span>极值: ${formatValue(sim.minVal)} ~ ${formatValue(sim.maxVal)}</span>
+              </div>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      },
+
+      updateSidebarItem(sim) {
+        const item = document.getElementById(`sidebar-item-${sim.id}`);
+        if (!item) return;
+        const statusBadge = item.querySelector('.status-badge');
+        statusBadge.textContent = this.getStatusText(sim.status);
+        statusBadge.style.color = this.getStatusColor(sim.status);
+        const details = item.querySelector('.instance-item-details');
+        details.innerHTML = `
+          <div class="item-sub-row">
+            <span>步数: ${sim.steps}${sim.maxSteps > 0 ? '/' + sim.maxSteps : ''}</span>
+            <span>细胞: ${sim.tokens.length}</span>
+          </div>
+          <div class="item-sub-row" style="color: #cbd5e1; font-family: monospace;">
+            <span>极值: ${formatValue(sim.minVal)} ~ ${formatValue(sim.maxVal)}</span>
+          </div>
+        `;
+      },
+
+      getStatusText(st) {
+        const map = { READY: '未启动', RUNNING: '运行中', PAUSED: '已暂停', COMPLETED: '达成一致', REACHED_LIMIT: '步数上限' };
+        return map[st] || st;
+      },
+
+      getStatusColor(st) {
+        const map = { READY: '#94a3b8', RUNNING: '#10b981', PAUSED: '#f59e0b', COMPLETED: '#38bdf8', REACHED_LIMIT: '#ef4444' };
+        return map[st] || '#fff';
+      },
+
+      renderStage() {
+        const sim = this.getActive();
+        const emptyEl = document.getElementById('stage-empty');
+        const inspectorEl = document.getElementById('main-inspector');
+
+        if (!sim) {
+          emptyEl.classList.remove('hidden');
+          inspectorEl.classList.add('hidden');
+          return;
+        }
+
+        emptyEl.classList.add('hidden');
+        inspectorEl.classList.remove('hidden');
+
+        // 基础参数填充
+        document.getElementById('cur-id').textContent = `#${sim.id}`;
+        document.getElementById('cur-steps').textContent = sim.steps;
+        document.getElementById('cur-max-steps-tag').textContent = sim.maxSteps > 0 ? ` / ${sim.maxSteps}` : '';
+        const stEl = document.getElementById('cur-status');
+        stEl.textContent = this.getStatusText(sim.status);
+        stEl.style.color = this.getStatusColor(sim.status);
+
+        // 实时极值填充
+        document.getElementById('cur-max-val').textContent = formatValue(sim.maxVal);
+        document.getElementById('cur-min-val').textContent = formatValue(sim.minVal);
+        document.getElementById('cur-occupied-count').textContent = sim.tokens.length;
+
+        // 交互控制态
+        const btnPause = document.getElementById('btn-pause');
+        btnPause.textContent = sim.status === 'PAUSED' ? '继续' : '暂停';
+        btnPause.disabled = (sim.status !== 'RUNNING' && sim.status !== 'PAUSED');
+
+        const speedTag = document.getElementById('cur-speed');
+        if (sim.interval >= 1000) {
+          speedTag.textContent = `${(sim.interval / 1000).toFixed(2)} s/步`;
+        } else {
+          speedTag.textContent = `${(1000 / sim.interval).toFixed(1)} 步/s`;
+        }
+
+        // 渲染自适应网格
+        const grid = document.getElementById('cur-grid');
+        grid.innerHTML = '';
+        
+        const cellSize = Math.max(28, Math.min(60, Math.floor(520 / Math.max(sim.rows, sim.cols))));
+        grid.style.gridTemplateColumns = `repeat(${sim.cols}, ${cellSize}px)`;
+        grid.style.gridTemplateRows = `repeat(${sim.rows}, ${cellSize}px)`;
+
+        const tokenMap = new Map();
+        sim.tokens.forEach(t => tokenMap.set(`${t.r},${t.c}`, t.value));
+
+        for (let r = 0; r < sim.rows; r++) {
+          for (let c = 0; c < sim.cols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.style.width = `${cellSize}px`;
+            cell.style.height = `${cellSize}px`;
+            cell.style.fontSize = `${Math.max(10, Math.floor(cellSize * 0.24))}px`;
+
+            const key = `${r},${c}`;
+            if (sim.status === 'READY') {
+              cell.classList.add('clickable');
+              cell.onclick = () => {
+                sim.start(r, c);
+                this.renderStage();
+                this.renderSidebar();
+              };
+            } else if (tokenMap.has(key)) {
+              cell.classList.add('has-val');
+              cell.textContent = formatValue(tokenMap.get(key));
+            }
+
+            grid.appendChild(cell);
+          }
+        }
+      }
+    };
+
+    // 事件绑定
+    document.getElementById('btn-create-sim').addEventListener('click', () => {
+      const rows = Math.max(3, Math.min(16, parseInt(document.getElementById('cfg-rows').value) || 8));
+      const cols = Math.max(3, Math.min(16, parseInt(document.getElementById('cfg-cols').value) || 8));
+      const initVal = Math.max(1, parseFloat(document.getElementById('cfg-init-val').value) || 1024);
+      const maxSteps = Math.max(0, parseInt(document.getElementById('cfg-max-steps').value) || 0);
+
+      manager.create(rows, cols, initVal, maxSteps);
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      const sim = manager.getActive();
+      if (!sim) return;
+      if (sim.status === 'RUNNING') sim.pause();
+      else if (sim.status === 'PAUSED') sim.resume();
+      manager.renderStage();
+      manager.renderSidebar();
+    });
+
+    document.getElementById('btn-fast').addEventListener('click', () => {
+      const sim = manager.getActive();
+      if (sim) {
+        sim.speedUp();
+        manager.renderStage();
+      }
+    });
+
+    document.getElementById('btn-slow').addEventListener('click', () => {
+      const sim = manager.getActive();
+      if (sim) {
+        sim.slowDown();
+        manager.renderStage();
+      }
+    });
+
+    document.getElementById('btn-terminate').addEventListener('click', () => {
+      const sim = manager.getActive();
+      if (sim) manager.remove(sim.id);
+    });
+
+    // 弹窗
+    const rulesModal = document.getElementById('modal-rules');
+    document.getElementById('btn-open-rules').addEventListener('click', () => rulesModal.classList.remove('hidden'));
+    document.getElementById('btn-close-rules').addEventListener('click', () => rulesModal.classList.add('hidden'));
+
+    // 初始化运行
+    window.addEventListener('DOMContentLoaded', () => {
+      manager.create(8, 8, 1024, 0);
+    });
+  </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
